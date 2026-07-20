@@ -1,6 +1,7 @@
+@charset "UTF-8";
 @page { size: A4; margin: 15mm; }
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif; font-size: 11pt; color: #333; line-height: 1.5; }
+body { font-family: 'Microsoft YaHei', '微软雅黑', 'PingFang SC', 'Hiragino Sans GB', 'Noto Sans CJK SC', 'Segoe UI', sans-serif; font-size: 11pt; color: #333; line-height: 1.5; }
 
 /* 紧凑模式 */
 body.compact { font-size: 10pt; line-height: 1.3; }

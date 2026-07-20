@@ -1,13 +1,40 @@
 import puppeteer from 'puppeteer';
+import fs from 'fs';
+import path from 'path';
 
 let browser = null;
 
+// 尝试查找系统 Chrome（自带中文字体）
+function findSystemChrome() {
+  const candidates = [
+    'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
+    'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
+    'C:\\Users\\admin\\AppData\\Local\\Google\\Chrome\\Application\\chrome.exe',
+  ];
+  for (const p of candidates) {
+    if (fs.existsSync(p)) return p;
+  }
+  return null;
+}
+
 async function getBrowser() {
   if (!browser || !browser.isConnected()) {
-    browser = await puppeteer.launch({
+    const systemChrome = findSystemChrome();
+    const launchOpts = {
       headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
-    });
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--font-render-hinting=medium',
+      ],
+    };
+    if (systemChrome) {
+      launchOpts.executablePath = systemChrome;
+      console.log('Using system Chrome for PDF (better font support):', systemChrome);
+    } else {
+      console.log('Using bundled Chromium for PDF');
+    }
+    browser = await puppeteer.launch(launchOpts);
   }
   return browser;
 }
