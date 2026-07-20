@@ -37,7 +37,7 @@ export default function CertificateEditor() {
           <div className="grid grid-cols-2 gap-2">
             <input className="border rounded px-2 py-1 text-sm" placeholder="证书名称" value={cert.name} onChange={e => updateItem(idx, 'name', e.target.value)} />
             <input className="border rounded px-2 py-1 text-sm" placeholder="颁发机构" value={cert.issuer} onChange={e => updateItem(idx, 'issuer', e.target.value)} />
-            <input className="border rounded px-2 py-1 text-sm" placeholder="获得日期" value={cert.date} onChange={e => updateItem(idx, 'date', e.target.value)} />
+            <input type="month" className="border rounded px-2 py-1 text-sm" placeholder="获得日期" value={cert.date} onChange={e => updateItem(idx, 'date', e.target.value)} />
           </div>
         </div>
       ))}

@@ -37,8 +37,8 @@ export default function ExperienceEditor() {
           <div className="grid grid-cols-2 gap-2">
             <input className="border rounded px-2 py-1 text-sm" placeholder="公司" value={exp.company} onChange={e => updateItem(idx, 'company', e.target.value)} />
             <input className="border rounded px-2 py-1 text-sm" placeholder="职位" value={exp.position} onChange={e => updateItem(idx, 'position', e.target.value)} />
-            <input className="border rounded px-2 py-1 text-sm" placeholder="开始时间" value={exp.startDate} onChange={e => updateItem(idx, 'startDate', e.target.value)} />
-            <input className="border rounded px-2 py-1 text-sm" placeholder="结束时间" value={exp.endDate} onChange={e => updateItem(idx, 'endDate', e.target.value)} />
+            <input type="month" className="border rounded px-2 py-1 text-sm" placeholder="开始时间" value={exp.startDate} onChange={e => updateItem(idx, 'startDate', e.target.value)} />
+            <input type="month" className="border rounded px-2 py-1 text-sm" placeholder="结束时间" value={exp.endDate} onChange={e => updateItem(idx, 'endDate', e.target.value)} />
           </div>
           <textarea className="w-full border rounded px-2 py-1 text-sm" placeholder="工作描述" value={exp.description} onChange={e => updateItem(idx, 'description', e.target.value)} />
           <div>

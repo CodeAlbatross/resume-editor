@@ -39,8 +39,8 @@ export default function EducationEditor() {
             <input className="border rounded px-2 py-1 text-sm" placeholder="学位" value={edu.degree} onChange={e => updateItem(idx, 'degree', e.target.value)} />
             <input className="border rounded px-2 py-1 text-sm" placeholder="专业" value={edu.major} onChange={e => updateItem(idx, 'major', e.target.value)} />
             <input className="border rounded px-2 py-1 text-sm" placeholder="GPA" value={edu.gpa || ''} onChange={e => updateItem(idx, 'gpa', e.target.value)} />
-            <input className="border rounded px-2 py-1 text-sm" placeholder="开始时间" value={edu.startDate} onChange={e => updateItem(idx, 'startDate', e.target.value)} />
-            <input className="border rounded px-2 py-1 text-sm" placeholder="结束时间" value={edu.endDate} onChange={e => updateItem(idx, 'endDate', e.target.value)} />
+            <input type="month" className="border rounded px-2 py-1 text-sm" placeholder="开始时间" value={edu.startDate} onChange={e => updateItem(idx, 'startDate', e.target.value)} />
+            <input type="month" className="border rounded px-2 py-1 text-sm" placeholder="结束时间" value={edu.endDate} onChange={e => updateItem(idx, 'endDate', e.target.value)} />
           </div>
         </div>
       ))}
