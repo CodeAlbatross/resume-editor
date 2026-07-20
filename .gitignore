@@ -1,0 +1,8 @@
+node_modules/
+dist/
+server/data/photos/*
+server/data/resumes/*
+!server/data/photos/.gitkeep
+!server/data/resumes/.gitkeep
+.DS_Store
+*.log

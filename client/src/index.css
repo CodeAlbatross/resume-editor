@@ -1,0 +1,9 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@page { margin: 15mm; size: A4; }
+
+body {
+  @apply bg-gray-50 text-gray-900;
+}
