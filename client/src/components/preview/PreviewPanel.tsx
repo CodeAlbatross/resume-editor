@@ -5,6 +5,7 @@ import ClassicTemplate from './ClassicTemplate';
 import ModernTemplate from './ModernTemplate';
 import CompactTemplate from './CompactTemplate';
 import CompressDialog from '../ui/CompressDialog';
+import { useOverflowCheck } from '../../hooks/useOverflowCheck';
 import type { TemplateMeta } from '../../types/resume';
 
 const TEMPLATE_MAP: Record<string, React.FC> = {
@@ -22,6 +23,8 @@ export default function PreviewPanel() {
   useEffect(() => {
     api.fetchTemplates().then(setTemplates).catch(() => {});
   }, []);
+
+  const { overflow, checking } = useOverflowCheck();
 
   if (!resume) return null;
 
@@ -88,6 +91,15 @@ export default function PreviewPanel() {
           {exporting ? '导出中...' : '⬇ 导出 PDF'}
         </button>
       </div>
+
+      {overflow === true && (
+        <div className="mb-3 px-3 py-2 bg-amber-50 border border-amber-200 rounded text-sm text-amber-700 flex items-center gap-2">
+          <span>⚠️ 内容超出一页</span>
+          <button onClick={handleSmartOnePage} className="ml-auto px-2 py-0.5 bg-amber-200 rounded text-xs hover:bg-amber-300">
+            智能调整
+          </button>
+        </div>
+      )}
 
       {/* 预览 */}
       <div className="overflow-auto bg-white shadow-lg" style={{ aspectRatio: '210 / 297' }}>
