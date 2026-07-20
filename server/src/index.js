@@ -3,6 +3,7 @@ import cors from 'cors';
 import { fileURLToPath } from 'url';
 import path from 'path';
 import resumesRouter from './routes/resumes.js';
+import photosRouter from './routes/photos.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -23,6 +24,9 @@ app.get('/api/health', (req, res) => {
 
 // 简历 CRUD API
 app.use('/api/resumes', resumesRouter);
+
+// 照片上传 API
+app.use('/api/photo', photosRouter);
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
