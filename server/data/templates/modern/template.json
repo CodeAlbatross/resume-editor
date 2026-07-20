@@ -1,0 +1,9 @@
+{
+  "id": "modern",
+  "label": "现代模板",
+  "description": "简约设计，右侧边栏，适合设计/产品岗",
+  "photoPosition": "right-top",
+  "photoSize": { "width": 90, "height": 90 },
+  "pageMargin": "12mm",
+  "primaryColor": "#0891b2"
+}

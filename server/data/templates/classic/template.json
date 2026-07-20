@@ -1,0 +1,9 @@
+{
+  "id": "classic",
+  "label": "经典模板",
+  "description": "左右分栏布局，信息密集，适合技术岗",
+  "photoPosition": "top-left",
+  "photoSize": { "width": 100, "height": 100 },
+  "pageMargin": "15mm",
+  "primaryColor": "#2563eb"
+}

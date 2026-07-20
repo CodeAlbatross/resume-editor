@@ -1,0 +1,9 @@
+{
+  "id": "compact",
+  "label": "紧凑模板",
+  "description": "天生节省空间，适合一页纸强需求的场景",
+  "photoPosition": "top-center",
+  "photoSize": { "width": 80, "height": 80 },
+  "pageMargin": "10mm",
+  "primaryColor": "#7c3aed"
+}

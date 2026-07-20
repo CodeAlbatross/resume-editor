@@ -4,6 +4,8 @@ import { fileURLToPath } from 'url';
 import path from 'path';
 import resumesRouter from './routes/resumes.js';
 import photosRouter from './routes/photos.js';
+import templatesRouter from './routes/templates.js';
+import pdfRouter from './routes/pdf.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -27,6 +29,12 @@ app.use('/api/resumes', resumesRouter);
 
 // 照片上传 API
 app.use('/api/photo', photosRouter);
+
+// 模板 API
+app.use('/api/templates', templatesRouter);
+
+// PDF 生成 API
+app.use('/api/pdf', pdfRouter);
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);

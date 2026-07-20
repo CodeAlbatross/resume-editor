@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<style><%- style %></style>
+</head>
+<body class="<%= compressClass %>">
+  <div class="header">
+    <% if (photoBase64) { %>
+    <div class="header-photo">
+      <img src="<%= photoBase64 %>" alt="photo" />
+    </div>
+    <% } %>
+    <div class="name"><%= data.sections.personal.name || '姓名' %></div>
+    <% if (data.sections.personal.title) { %>
+      <div class="title"><%= data.sections.personal.title %></div>
+    <% } %>
+    <div class="contact">
+      <% if (data.sections.personal.email) { %><span>&#9993; <%= data.sections.personal.email %></span><% } %>
+      <% if (data.sections.personal.phone) { %><span>&#128222; <%= data.sections.personal.phone %></span><% } %>
+      <% if (data.sections.personal.website) { %><span>&#127760; <%= data.sections.personal.website %></span><% } %>
+    </div>
+  </div>
+
+  <% if (data.sections.summary && data.sections.summary.content) { %>
+  <div class="section">
+    <p class="summary-text"><%= data.sections.summary.content %></p>
+  </div>
+  <% } %>
+
+  <div class="section">
+    <div class="section-title">工作经历</div>
+    <% if (data.sections.experience && data.sections.experience.length) { %>
+    <% data.sections.experience.forEach(function(exp) { %>
+    <div class="item">
+      <div class="item-header">
+        <div><span class="item-name"><%= exp.company %></span> &middot; <span class="item-sub"><%= exp.position %></span></div>
+        <div class="item-date"><%= exp.startDate %> ~ <%= exp.endDate %></div>
+      </div>
+      <% if (exp.description) { %><div class="item-desc"><%= exp.description %></div><% } %>
+      <% if (exp.highlights && exp.highlights.length) { %>
+      <ul class="item-highlights">
+        <% exp.highlights.forEach(function(h) { %><li><%= h %></li><% }) %>
+      </ul>
+      <% } %>
+    </div>
+    <% }) %>
+    <% } %>
+  </div>
+
+  <div class="section">
+    <div class="section-title">项目经历</div>
+    <% if (data.sections.projects && data.sections.projects.length) { %>
+    <% data.sections.projects.forEach(function(proj) { %>
+    <div class="item">
+      <div class="item-header">
+        <div><span class="item-name"><%= proj.name %></span> &middot; <span class="item-sub"><%= proj.role %></span></div>
+        <div class="item-date"><%= proj.technologies ? proj.technologies.join(', ') : '' %></div>
+      </div>
+      <% if (proj.description) { %><div class="item-desc"><%= proj.description %></div><% } %>
+      <% if (proj.highlights && proj.highlights.length) { %>
+      <ul class="item-highlights">
+        <% proj.highlights.forEach(function(h) { %><li><%= h %></li><% }) %>
+      </ul>
+      <% } %>
+    </div>
+    <% }) %>
+    <% } %>
+  </div>
+
+  <div class="section">
+    <div class="section-title">教育背景</div>
+    <% if (data.sections.education && data.sections.education.length) { %>
+    <% data.sections.education.forEach(function(edu) { %>
+    <div class="item">
+      <div class="item-header">
+        <div><span class="item-name"><%= edu.school %></span> &middot; <span class="item-sub"><%= edu.major %></span> &middot; <%= edu.degree %></div>
+        <div class="item-date"><%= edu.startDate %> ~ <%= edu.endDate %></div>
+      </div>
+      <% if (edu.gpa) { %><div class="item-desc">GPA: <%= edu.gpa %></div><% } %>
+    </div>
+    <% }) %>
+    <% } %>
+  </div>
+
+  <div class="section section-skills">
+    <div class="section-title">技能专长</div>
+    <div class="skills">
+      <% if (data.sections.skills && data.sections.skills.length) { %>
+      <% data.sections.skills.forEach(function(skill) { %>
+        <% (skill.items || []).forEach(function(item) { %>
+          <span class="tag"><%= item %></span>
+        <% }) %>
+      <% }) %>
+      <% } %>
+    </div>
+  </div>
+
+  <div class="section section-certificates">
+    <div class="section-title">证书</div>
+    <% if (data.sections.certificates && data.sections.certificates.length) { %>
+    <% data.sections.certificates.forEach(function(cert) { %>
+    <div class="item">
+      <div class="item-header">
+        <div><span class="item-name"><%= cert.name %></span> &middot; <span class="item-sub"><%= cert.issuer %></span></div>
+        <div class="item-date"><%= cert.date %></div>
+      </div>
+    </div>
+    <% }) %>
+    <% } %>
+  </div>
+
+  <div class="section section-languages">
+    <div class="section-title">语言</div>
+    <div class="skills">
+      <% if (data.sections.languages && data.sections.languages.length) { %>
+      <% data.sections.languages.forEach(function(lang) { %>
+        <span class="tag"><%= lang.name %> &middot; <%= lang.level %></span>
+      <% }) %>
+      <% } %>
+    </div>
+  </div>
+</body>
+</html>

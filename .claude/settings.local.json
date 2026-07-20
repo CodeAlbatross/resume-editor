@@ -7,7 +7,27 @@
       "Bash(bash \"C:\\\\Users\\\\admin\\\\.claude\\\\plugins\\\\cache\\\\claude-plugins-official\\\\superpowers\\\\6.0.3\\\\skills\\\\subagent-driven-development\\\\scripts\\\\task-brief\" \"docs/superpowers/plans/2026-07-20-resume-generator-plan.md\" 1)",
       "Bash(npm install *)",
       "Bash(timeout 15)",
-      "Bash(git add *)"
+      "Bash(git add *)",
+      "Bash(git commit -m 'feat: initialize monorepo scaffold *)",
+      "Bash(bash \"C:\\\\Users\\\\admin\\\\.claude\\\\plugins\\\\cache\\\\claude-plugins-official\\\\superpowers\\\\6.0.3\\\\skills\\\\subagent-driven-development\\\\scripts\\\\review-package\" \"4b825dc642cb6eb9a060e54bf899d153036e1e7b\" \"90b0915\")",
+      "Bash(bash \"C:\\\\Users\\\\admin\\\\.claude\\\\plugins\\\\cache\\\\claude-plugins-official\\\\superpowers\\\\6.0.3\\\\skills\\\\subagent-driven-development\\\\scripts\\\\task-brief\" \"docs/superpowers/plans/2026-07-20-resume-generator-plan.md\" 2)",
+      "Bash(node src/index.js)",
+      "Bash(curl -s http://localhost:3001/api/health)",
+      "Bash(taskkill //F //IM node.exe)",
+      "Bash(git commit *)",
+      "Bash(netstat -ano)",
+      "Bash(findstr \":3001\")",
+      "Bash(findstr \":3000\")",
+      "Bash(node -e ' *)",
+      "Bash(bash \"C:\\\\Users\\\\admin\\\\.claude\\\\plugins\\\\cache\\\\claude-plugins-official\\\\superpowers\\\\6.0.3\\\\skills\\\\subagent-driven-development\\\\scripts\\\\task-brief\" \"docs/superpowers/plans/2026-07-20-resume-generator-plan.md\" 3)",
+      "Bash(taskkill //F //FI \"MEMUSAGE gt 0\" //FI \"IMAGENAME eq node.exe\")",
+      "Bash(echo -ne '\\\\x89PNG\\\\r\\\\n\\\\x1a\\\\n\\\\x00\\\\x00\\\\x00\\\\rIHDR\\\\x00\\\\x00\\\\x00\\\\x01\\\\x00\\\\x00\\\\x00\\\\x01\\\\x08\\\\x02\\\\x00\\\\x00\\\\x00\\\\x90wS\\\\xde\\\\x00\\\\x00\\\\x00\\\\x0cIDATx\\\\x9cc\\\\xf8\\\\x0f\\\\x00\\\\x00\\\\x01\\\\x01\\\\x00\\\\x05\\\\x18\\\\xd8N\\\\x00\\\\x00\\\\x00\\\\x00IEND\\\\xaeB`\\\\x82')",
+      "Read(//tmp/**)",
+      "Bash(curl *)",
+      "Bash(taskkill //F //FI \"IMAGENAME eq node.exe\")",
+      "Bash(node -e \"process.stdin.on\\('data',d=>process.stdout.write\\(d\\)\\)\")",
+      "Bash(node -e \"process.stdin.on\\('data',d=>{const r=JSON.parse\\(d\\);console.log\\('updated:',r.id\\)}\\)\")",
+      "Bash(pkill -f \"node src/index.js\")"
     ]
   }
 }
