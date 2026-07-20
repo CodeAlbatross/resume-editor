@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useResumeStore } from '../stores/useResumeStore';
 import * as api from '../api/client';
+import { useAutoSave } from '../hooks/useAutoSave';
 import PersonalInfoEditor from '../components/editor/PersonalInfoEditor';
 import SummaryEditor from '../components/editor/SummaryEditor';
 import ExperienceEditor from '../components/editor/ExperienceEditor';
@@ -55,6 +56,8 @@ export default function Editor() {
   }
 
   const Comp = SECTION_COMPONENTS[activeSection] || (() => <p className="text-gray-400">未找到编辑器</p>);
+
+  useAutoSave();
 
   return (
     <div className="h-screen flex flex-col">
