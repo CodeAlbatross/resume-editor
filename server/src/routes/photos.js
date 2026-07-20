@@ -22,7 +22,11 @@ router.post('/upload', (req, res) => {
 
 router.delete('/:filename', async (req, res) => {
   try {
-    await fs.unlink(path.join(PHOTO_DIR, req.params.filename));
+    const fullPath = path.resolve(PHOTO_DIR, req.params.filename);
+    if (!fullPath.startsWith(PHOTO_DIR)) {
+      return res.status(400).json({ error: '非法的文件名' });
+    }
+    await fs.unlink(fullPath);
     res.json({ deleted: true });
   } catch {
     res.status(404).json({ error: '文件未找到' });
