@@ -25,41 +25,57 @@ router.post('/', async (req, res) => {
 
 // 详情
 router.get('/:id', async (req, res) => {
-  const resume = await storage.readResume(req.params.id);
-  if (!resume) return res.status(404).json({ error: 'not found' });
-  res.json(resume);
+  try {
+    const resume = await storage.readResume(req.params.id);
+    if (!resume) return res.status(404).json({ error: 'not found' });
+    res.json(resume);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
 });
 
 // 更新（全量覆盖）
 router.put('/:id', async (req, res) => {
-  const existing = await storage.readResume(req.params.id);
-  if (!existing) return res.status(404).json({ error: 'not found' });
-  const updated = await storage.writeResume(req.params.id, { ...existing, ...req.body, id: req.params.id });
-  res.json(updated);
+  try {
+    const existing = await storage.readResume(req.params.id);
+    if (!existing) return res.status(404).json({ error: 'not found' });
+    const updated = await storage.writeResume(req.params.id, { ...existing, ...req.body, id: req.params.id });
+    res.json(updated);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
 });
 
 // 局部更新
 router.patch('/:id', async (req, res) => {
-  const existing = await storage.readResume(req.params.id);
-  if (!existing) return res.status(404).json({ error: 'not found' });
-  const merged = JSON.parse(JSON.stringify(existing));
-  for (const key of Object.keys(req.body)) {
-    if (key === 'sections') {
-      for (const sectionKey of Object.keys(req.body.sections)) {
-        merged.sections[sectionKey] = req.body.sections[sectionKey];
+  try {
+    const existing = await storage.readResume(req.params.id);
+    if (!existing) return res.status(404).json({ error: 'not found' });
+    const merged = JSON.parse(JSON.stringify(existing));
+    for (const key of Object.keys(req.body)) {
+      if (key === 'sections') {
+        for (const sectionKey of Object.keys(req.body.sections)) {
+          merged.sections[sectionKey] = req.body.sections[sectionKey];
+        }
+      } else {
+        merged[key] = req.body[key];
       }
-    } else {
-      merged[key] = req.body[key];
     }
+    const saved = await storage.writeResume(req.params.id, merged);
+    res.json(saved);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
   }
-  const saved = await storage.writeResume(req.params.id, merged);
-  res.json(saved);
 });
 
 // 删除
 router.delete('/:id', async (req, res) => {
-  const ok = await storage.deleteResume(req.params.id);
-  res.json({ deleted: ok });
+  try {
+    const ok = await storage.deleteResume(req.params.id);
+    res.json({ deleted: ok });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
 });
 
 export default router;

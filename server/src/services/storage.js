@@ -7,6 +7,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DATA_DIR = path.join(__dirname, '../../data/resumes');
 
 export async function listResumes() {
+  await fs.mkdir(DATA_DIR, { recursive: true }).catch(() => {});
   const files = await fs.readdir(DATA_DIR);
   const resumes = [];
   for (const file of files) {
@@ -34,10 +35,11 @@ export async function readResume(id) {
 }
 
 export async function writeResume(id, data) {
+  await fs.mkdir(DATA_DIR, { recursive: true }).catch(() => {});
+  const record = { ...data, id, updatedAt: new Date().toISOString() };
   const filePath = path.join(DATA_DIR, `${id}.json`);
-  data.updatedAt = new Date().toISOString();
-  await fs.writeFile(filePath, JSON.stringify(data, null, 2), 'utf-8');
-  return data;
+  await fs.writeFile(filePath, JSON.stringify(record, null, 2), 'utf-8');
+  return record;
 }
 
 export async function createResume() {
