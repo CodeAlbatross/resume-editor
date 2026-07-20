@@ -8,7 +8,7 @@ const router = Router();
 router.post('/generate', async (req, res) => {
   try {
     const { resumeId, template = 'classic', compress = {} } = req.body;
-    const html = await templateService.renderResume(resumeId, template, compress);
+    const { html } = await templateService.renderResume(resumeId, template, compress);
     const result = await pdfService.generatePDF(html);
 
     res.setHeader('Content-Type', 'application/pdf');
@@ -24,8 +24,8 @@ router.post('/generate', async (req, res) => {
 router.post('/check-overflow', async (req, res) => {
   try {
     const { resumeId, template = 'classic', compress = {} } = req.body;
-    const html = await templateService.renderResume(resumeId, template, compress);
-    const result = await pdfService.generatePDF(html, { checkOverflow: true });
+    const { html, pageMargin } = await templateService.renderResume(resumeId, template, compress);
+    const result = await pdfService.generatePDF(html, { checkOverflow: true, pageMargin });
     res.json({ overflow: result.overflow });
   } catch (e) {
     res.status(500).json({ error: e.message });

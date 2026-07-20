@@ -20,14 +20,14 @@ export async function generatePDF(html, options = {}) {
 
     // 检测是否超出一页
     if (options.checkOverflow) {
-      const overflow = await page.evaluate(() => {
+      const pageMargin = options.pageMargin || 15; // mm each side
+      const overflow = await page.evaluate((margin) => {
         const body = document.body;
         const height = body.scrollHeight;
         const pxPerMm = 96 / 25.4;
-        const pageHeightMm = 297 - 30; // A4 - margins
+        const pageHeightMm = 297 - margin * 2; // A4 - top & bottom margins
         return height / pxPerMm > pageHeightMm;
-      });
-      page.close();
+      }, pageMargin);
       return { overflow };
     }
 
