@@ -51,13 +51,13 @@ export default function Editor() {
     }
   };
 
+  useAutoSave();
+
   if (loading || !resume) {
     return <div className="flex items-center justify-center h-screen text-gray-400">加载中...</div>;
   }
 
   const Comp = SECTION_COMPONENTS[activeSection] || (() => <p className="text-gray-400">未找到编辑器</p>);
-
-  useAutoSave();
 
   return (
     <div className="h-screen flex flex-col">

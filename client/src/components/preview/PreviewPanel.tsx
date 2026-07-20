@@ -33,6 +33,8 @@ export default function PreviewPanel() {
   const handleExport = async (compress = false) => {
     setExporting(true);
     try {
+      // Save latest data to disk first so PDF generation reads current state
+      await api.updateResume(resume.id, resume);
       const blob = await api.generatePdf(resume.id, resume.template, compress ? compressSettings : {});
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');

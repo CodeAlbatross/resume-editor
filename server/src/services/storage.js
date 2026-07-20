@@ -4,7 +4,13 @@ import { fileURLToPath } from 'url';
 import { v4 as uuidv4 } from 'uuid';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const DATA_DIR = path.join(__dirname, '../../data/resumes');
+const DATA_DIR = path.resolve(path.join(__dirname, '../../data/resumes'));
+
+function safePath(id) {
+  const filePath = path.resolve(DATA_DIR, `${id}.json`);
+  if (!filePath.startsWith(DATA_DIR)) throw new Error('Invalid id');
+  return filePath;
+}
 
 export async function listResumes() {
   await fs.mkdir(DATA_DIR, { recursive: true }).catch(() => {});
@@ -26,7 +32,7 @@ export async function listResumes() {
 }
 
 export async function readResume(id) {
-  const filePath = path.join(DATA_DIR, `${id}.json`);
+  const filePath = safePath(id);
   try {
     return JSON.parse(await fs.readFile(filePath, 'utf-8'));
   } catch {
@@ -37,7 +43,7 @@ export async function readResume(id) {
 export async function writeResume(id, data) {
   await fs.mkdir(DATA_DIR, { recursive: true }).catch(() => {});
   const record = { ...data, id, updatedAt: new Date().toISOString() };
-  const filePath = path.join(DATA_DIR, `${id}.json`);
+  const filePath = safePath(id);
   await fs.writeFile(filePath, JSON.stringify(record, null, 2), 'utf-8');
   return record;
 }
@@ -69,7 +75,7 @@ export async function createResume() {
 }
 
 export async function deleteResume(id) {
-  const filePath = path.join(DATA_DIR, `${id}.json`);
+  const filePath = safePath(id);
   try {
     await fs.unlink(filePath);
     return true;
