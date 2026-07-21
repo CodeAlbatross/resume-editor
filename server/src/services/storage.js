@@ -57,6 +57,7 @@ export async function createResume() {
     title: '',
     updatedAt: now,
     template: 'classic',
+    themeColor: '#2563eb',
     compressSettings: { compact: false, trim: false, hide: false },
     sectionOrder: ['personal', 'summary', 'experience', 'projects', 'education', 'skills', 'certificates', 'languages'],
     sections: {
@@ -68,6 +69,7 @@ export async function createResume() {
       skills: [],
       certificates: [],
       languages: [],
+      customFields: [],
     },
   };
   await writeResume(id, blank);

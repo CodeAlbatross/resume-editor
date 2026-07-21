@@ -55,6 +55,12 @@ export interface Language {
   level: string;
 }
 
+export interface CustomSection {
+  key: string;
+  title: string;
+  content: string;
+}
+
 export interface ResumeSections {
   personal: PersonalInfo;
   summary: Summary;
@@ -64,6 +70,7 @@ export interface ResumeSections {
   skills: SkillCategory[];
   certificates: Certificate[];
   languages: Language[];
+  customFields: CustomSection[];
 }
 
 export interface CompressSettings {
@@ -78,6 +85,7 @@ export interface ResumeData {
   title: string;
   updatedAt: string;
   template: string;
+  themeColor: string;
   compressSettings: CompressSettings;
   sectionOrder: string[];
   sections: ResumeSections;

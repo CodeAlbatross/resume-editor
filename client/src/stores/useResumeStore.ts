@@ -18,7 +18,12 @@ interface ResumeStore {
     section: K,
     value: ResumeData['sections'][K]
   ) => void;
-  updateResumeMeta: (patch: Partial<Pick<ResumeData, 'name' | 'title' | 'template' | 'sectionOrder'>>) => void;
+  updateResumeMeta: (patch: Partial<Pick<ResumeData, 'name' | 'title' | 'template' | 'sectionOrder' | 'themeColor'>>) => void;
+  // 移动模块位置
+  moveSection: (fromIndex: number, toIndex: number) => void;
+  // 添加自定义模块
+  addCustomSection: () => void;
+  removeCustomSection: (key: string) => void;
 }
 
 export const useResumeStore = create<ResumeStore>((set, get) => ({
@@ -49,5 +54,46 @@ export const useResumeStore = create<ResumeStore>((set, get) => ({
     const resume = get().resume;
     if (!resume) return;
     set({ resume: { ...resume, ...patch } });
+  },
+
+  moveSection: (fromIndex, toIndex) => {
+    const resume = get().resume;
+    if (!resume) return;
+    const order = [...resume.sectionOrder];
+    const [moved] = order.splice(fromIndex, 1);
+    order.splice(toIndex, 0, moved);
+    set({ resume: { ...resume, sectionOrder: order } });
+  },
+
+  addCustomSection: () => {
+    const resume = get().resume;
+    if (!resume) return;
+    const key = 'custom_' + Date.now();
+    const newSection: any = { key, title: '自定义模块', content: '在此输入内容' };
+    // 确保 customFields 存在
+    const customFields = resume.sections.customFields || [];
+    set({
+      resume: {
+        ...resume,
+        sectionOrder: [...resume.sectionOrder, key],
+        sections: {
+          ...resume.sections,
+          customFields: [...customFields, newSection],
+        },
+      },
+    });
+  },
+
+  removeCustomSection: (key) => {
+    const resume = get().resume;
+    if (!resume) return;
+    const customFields = (resume.sections.customFields || []).filter(c => c.key !== key);
+    set({
+      resume: {
+        ...resume,
+        sectionOrder: resume.sectionOrder.filter(s => s !== key),
+        sections: { ...resume.sections, customFields },
+      },
+    });
   },
 }));
