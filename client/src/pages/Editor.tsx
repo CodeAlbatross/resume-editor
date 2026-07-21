@@ -41,6 +41,15 @@ export default function Editor() {
       // 确保新字段有默认值
       if (!r.themeColor) r.themeColor = '#2563eb';
       if (!r.sections.customFields) (r.sections as any).customFields = [];
+      // 向后兼容：将旧的字符串技能转为 SkillItem
+      if (r.sections.skills) {
+        r.sections.skills = r.sections.skills.map((cat: any) => ({
+          ...cat,
+          items: (cat.items || []).map((item: any) =>
+            typeof item === 'string' ? { name: item, level: '' } : item
+          ),
+        }));
+      }
       setResume(r);
     }).catch(() => {
       alert('加载简历失败');

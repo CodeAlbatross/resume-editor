@@ -39,9 +39,14 @@ export interface Education {
   gpa?: string;
 }
 
+export interface SkillItem {
+  name: string;
+  level?: string;
+}
+
 export interface SkillCategory {
   category: string;
-  items: string[];
+  items: SkillItem[];
 }
 
 export interface Certificate {

@@ -1,5 +1,8 @@
 import { useResumeStore } from '../../stores/useResumeStore';
 
+function skillName(sk: any) { return typeof sk === 'string' ? sk : sk.name; }
+function skillLevel(sk: any) { return typeof sk === 'string' ? '' : (sk.level || ''); }
+
 export default function ClassicTemplate() {
   const resume = useResumeStore((s) => s.resume);
   if (!resume) return null;
@@ -68,8 +71,11 @@ export default function ClassicTemplate() {
             {sections.skills.map((sk, i) => (
               <div key={i} className="mb-1">
                 <span className="text-sm font-medium">{sk.category}：</span>
-                {sk.items.map((item, j) => (
-                  <span key={j} className="inline-block text-xs px-2 py-0.5 rounded-full mr-1 mb-1" style={{ backgroundColor: c + '15', color: c }}>{item}</span>
+                {sk.items.map((item: any, j: number) => (
+                  <span key={j} className="inline-block text-xs px-2 py-0.5 rounded-full mr-1 mb-1" style={{ backgroundColor: c + '15', color: c }}>
+                    {skillName(item)}
+                    {skillLevel(item) && <span className="ml-0.5 opacity-60">·{skillLevel(item)}</span>}
+                  </span>
                 ))}
               </div>
             ))}
