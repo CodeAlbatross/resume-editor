@@ -1,3 +1,4 @@
+import { useState, useEffect, useRef } from 'react';
 import { useResumeStore } from '../../stores/useResumeStore';
 import type { SkillCategory } from '../../types/resume';
 
@@ -29,21 +30,53 @@ export default function SkillsEditor() {
         <button onClick={add} className="text-xs px-2 py-1 bg-blue-50 text-blue-600 rounded hover:bg-blue-100">+ 添加</button>
       </div>
       {skills.map((skill, idx) => (
-        <div key={idx} className="border rounded p-3 space-y-2 bg-gray-50">
-          <div className="flex justify-between">
-            <span className="text-xs font-medium text-gray-500">#{idx + 1}</span>
-            <button onClick={() => remove(idx)} className="text-xs text-red-500">删除</button>
-          </div>
-          <div>
-            <label className="text-xs text-gray-500">分类名称</label>
-            <input className="w-full border rounded px-2 py-1 text-sm" placeholder="前端、后端、工具..." value={skill.category} onChange={e => updateItem(idx, 'category', e.target.value)} />
-          </div>
-          <div>
-            <label className="text-xs text-gray-500">技能项（逗号分隔）</label>
-            <input className="w-full border rounded px-2 py-1 text-sm" placeholder="React, TypeScript, CSS" value={skill.items.join(', ')} onChange={e => updateItem(idx, 'items', e.target.value.split(',').map(s => s.trim()).filter(Boolean))} />
-          </div>
-        </div>
+        <SkillItem key={idx} skill={skill} index={idx} updateItem={updateItem} onRemove={() => remove(idx)} />
       ))}
+    </div>
+  );
+}
+
+function SkillItem({ skill, index, updateItem, onRemove }: {
+  skill: SkillCategory;
+  index: number;
+  updateItem: (idx: number, field: string, value: string | string[]) => void;
+  onRemove: () => void;
+}) {
+  const [itemsText, setItemsText] = useState(() => skill.items.join(', '));
+  const prevItemsRef = useRef(skill.items);
+
+  useEffect(() => {
+    const prev = prevItemsRef.current;
+    if (prev !== skill.items) {
+      setItemsText(skill.items.join(', '));
+      prevItemsRef.current = skill.items;
+    }
+  }, [skill.items]);
+
+  const handleChange = (text: string) => {
+    setItemsText(text);
+  };
+
+  const handleBlur = () => {
+    const items = itemsText.split(',').map(s => s.trim()).filter(Boolean);
+    setItemsText(items.join(', '));
+    updateItem(index, 'items', items);
+  };
+
+  return (
+    <div className="border rounded p-3 space-y-2 bg-gray-50">
+      <div className="flex justify-between">
+        <span className="text-xs font-medium text-gray-500">#{index + 1}</span>
+        <button onClick={onRemove} className="text-xs text-red-500">删除</button>
+      </div>
+      <div>
+        <label className="text-xs text-gray-500">分类名称</label>
+        <input className="w-full border rounded px-2 py-1 text-sm" placeholder="前端、后端、工具..." value={skill.category} onChange={e => updateItem(index, 'category', e.target.value)} />
+      </div>
+      <div>
+        <label className="text-xs text-gray-500">技能项（逗号分隔）</label>
+        <input className="w-full border rounded px-2 py-1 text-sm" placeholder="React, TypeScript, CSS" value={itemsText} onChange={e => handleChange(e.target.value)} onBlur={handleBlur} />
+      </div>
     </div>
   );
 }

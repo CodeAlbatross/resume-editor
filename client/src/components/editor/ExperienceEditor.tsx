@@ -1,3 +1,4 @@
+import { useState, useEffect, useRef } from 'react';
 import { useResumeStore } from '../../stores/useResumeStore';
 import type { Experience } from '../../types/resume';
 
@@ -29,24 +30,92 @@ export default function ExperienceEditor() {
         <button onClick={add} className="text-xs px-2 py-1 bg-blue-50 text-blue-600 rounded hover:bg-blue-100">+ 添加</button>
       </div>
       {experiences.map((exp, idx) => (
-        <div key={idx} className="border rounded p-3 space-y-2 bg-gray-50">
-          <div className="flex justify-between">
-            <span className="text-xs font-medium text-gray-500">#{idx + 1}</span>
-            <button onClick={() => remove(idx)} className="text-xs text-red-500">删除</button>
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            <input className="border rounded px-2 py-1 text-sm" placeholder="公司" value={exp.company} onChange={e => updateItem(idx, 'company', e.target.value)} />
-            <input className="border rounded px-2 py-1 text-sm" placeholder="职位" value={exp.position} onChange={e => updateItem(idx, 'position', e.target.value)} />
-            <input type="month" className="border rounded px-2 py-1 text-sm" placeholder="开始时间" value={exp.startDate} onChange={e => updateItem(idx, 'startDate', e.target.value)} />
-            <input type="month" className="border rounded px-2 py-1 text-sm" placeholder="结束时间" value={exp.endDate} onChange={e => updateItem(idx, 'endDate', e.target.value)} />
-          </div>
-          <textarea className="w-full border rounded px-2 py-1 text-sm" placeholder="工作描述" value={exp.description} onChange={e => updateItem(idx, 'description', e.target.value)} />
-          <div>
-            <label className="text-xs text-gray-500">工作亮点（每行一条）</label>
-            <textarea className="w-full border rounded px-2 py-1 text-sm" placeholder="每行一条亮点" value={exp.highlights.join('\n')} onChange={e => updateItem(idx, 'highlights', e.target.value.split('\n').filter(Boolean))} />
-          </div>
-        </div>
+        <ExperienceItem
+          key={idx}
+          exp={exp}
+          index={idx}
+          updateItem={updateItem}
+          onRemove={() => remove(idx)}
+        />
       ))}
+    </div>
+  );
+}
+
+// Separate component so each item has its own highlights text state
+function ExperienceItem({ exp, index, updateItem, onRemove }: {
+  exp: Experience;
+  index: number;
+  updateItem: (idx: number, field: string, value: string | string[]) => void;
+  onRemove: () => void;
+}) {
+  // Local text state for highlights — synced from store on init and when highlights change externally
+  const [highlightsText, setHighlightsText] = useState(() => exp.highlights.join('\n'));
+  const prevHighlightsRef = useRef(exp.highlights);
+
+  // Sync from store if highlights were changed from outside (e.g. undo, load)
+  useEffect(() => {
+    const prev = prevHighlightsRef.current;
+    const current = exp.highlights;
+    // Only sync if the array identity changed (i.e. from store, not from our own updates)
+    if (prev !== current) {
+      const prevStr = prev.join('\n');
+      const currStr = current.join('\n');
+      if (prevStr !== highlightsText) {
+        setHighlightsText(currStr);
+      }
+      prevHighlightsRef.current = current;
+    }
+  }, [exp.highlights]);
+
+  const handleHighlightsChange = (text: string) => {
+    setHighlightsText(text);
+    // Don't filter out empty lines — let user type freely
+    const lines = text.split('\n');
+    updateItem(index, 'highlights', lines);
+  };
+
+  const handleHighlightsBlur = () => {
+    // On blur, clean up: remove trailing empty lines and trim each line
+    const clean = highlightsText
+      .split('\n')
+      .map(l => l.trim())
+      .filter((l, i, arr) => l !== '' || i < arr.length - 1); // keep non-trailing empty lines
+    const cleaned = clean.join('\n');
+    // Remove fully trailing blank lines
+    const trimmed = cleaned.replace(/\n+$/, '');
+    setHighlightsText(trimmed);
+    updateItem(index, 'highlights', trimmed.split('\n').filter(Boolean));
+  };
+
+  return (
+    <div className="border rounded p-3 space-y-2 bg-gray-50">
+      <div className="flex justify-between">
+        <span className="text-xs font-medium text-gray-500">#{index + 1}</span>
+        <button onClick={onRemove} className="text-xs text-red-500">删除</button>
+      </div>
+      <div className="grid grid-cols-2 gap-2">
+        <input className="border rounded px-2 py-1 text-sm" placeholder="公司" value={exp.company} onChange={e => updateItem(index, 'company', e.target.value)} />
+        <input className="border rounded px-2 py-1 text-sm" placeholder="职位" value={exp.position} onChange={e => updateItem(index, 'position', e.target.value)} />
+        <input type="month" className="border rounded px-2 py-1 text-sm" placeholder="开始时间" value={exp.startDate} onChange={e => updateItem(index, 'startDate', e.target.value)} />
+        <input type="month" className="border rounded px-2 py-1 text-sm" placeholder="结束时间" value={exp.endDate} onChange={e => updateItem(index, 'endDate', e.target.value)} />
+      </div>
+      <textarea
+        className="w-full border rounded px-2 py-1 text-sm min-h-[60px]"
+        placeholder="工作描述"
+        value={exp.description}
+        onChange={e => updateItem(index, 'description', e.target.value)}
+      />
+      <div>
+        <label className="text-xs text-gray-500">工作亮点（每行一条，换行即可）</label>
+        <textarea
+          className="w-full border rounded px-2 py-1 text-sm min-h-[72px]"
+          placeholder="每行一条亮点"
+          value={highlightsText}
+          onChange={e => handleHighlightsChange(e.target.value)}
+          onBlur={handleHighlightsBlur}
+        />
+      </div>
     </div>
   );
 }
