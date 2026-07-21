@@ -15,6 +15,14 @@ export default function EducationEditor() {
     setItems(educations.filter((_, i) => i !== idx));
   };
 
+  const move = (idx: number, dir: number) => {
+    const target = idx + dir;
+    if (target < 0 || target >= educations.length) return;
+    const items = [...educations];
+    [items[idx], items[target]] = [items[target], items[idx]];
+    setItems(items);
+  };
+
   const updateItem = (idx: number, field: string, value: string) => {
     const items = educations.map((item, i) =>
       i === idx ? { ...item, [field]: value } : item
@@ -30,8 +38,12 @@ export default function EducationEditor() {
       </div>
       {educations.map((edu, idx) => (
         <div key={idx} className="border rounded p-3 space-y-2 bg-gray-50">
-          <div className="flex justify-between">
-            <span className="text-xs font-medium text-gray-500">#{idx + 1}</span>
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-0.5">
+              <span className="text-xs font-medium text-gray-500">#{idx + 1}</span>
+              {idx > 0 && <button onClick={() => move(idx, -1)} className="text-[10px] text-gray-400 hover:text-gray-700 px-0.5" title="上移">▲</button>}
+              {idx < educations.length - 1 && <button onClick={() => move(idx, 1)} className="text-[10px] text-gray-400 hover:text-gray-700 px-0.5" title="下移">▼</button>}
+            </div>
             <button onClick={() => remove(idx)} className="text-xs text-red-500">删除</button>
           </div>
           <div className="grid grid-cols-2 gap-2">

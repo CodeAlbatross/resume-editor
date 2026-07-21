@@ -16,6 +16,14 @@ export default function ExperienceEditor() {
     setItems(experiences.filter((_, i) => i !== idx));
   };
 
+  const move = (idx: number, dir: number) => {
+    const target = idx + dir;
+    if (target < 0 || target >= experiences.length) return;
+    const items = [...experiences];
+    [items[idx], items[target]] = [items[target], items[idx]];
+    setItems(items);
+  };
+
   const updateItem = (idx: number, field: string, value: string | string[]) => {
     const items = experiences.map((item, i) =>
       i === idx ? { ...item, [field]: value } : item
@@ -34,8 +42,10 @@ export default function ExperienceEditor() {
           key={idx}
           exp={exp}
           index={idx}
+          total={experiences.length}
           updateItem={updateItem}
           onRemove={() => remove(idx)}
+          onMove={(dir) => move(idx, dir)}
         />
       ))}
     </div>
@@ -43,11 +53,13 @@ export default function ExperienceEditor() {
 }
 
 // Separate component so each item has its own highlights text state
-function ExperienceItem({ exp, index, updateItem, onRemove }: {
+function ExperienceItem({ exp, index, total, updateItem, onRemove, onMove }: {
   exp: Experience;
   index: number;
+  total: number;
   updateItem: (idx: number, field: string, value: string | string[]) => void;
   onRemove: () => void;
+  onMove: (dir: number) => void;
 }) {
   // Local text state for highlights — synced from store on init and when highlights change externally
   const [highlightsText, setHighlightsText] = useState(() => exp.highlights.join('\n'));
@@ -90,8 +102,12 @@ function ExperienceItem({ exp, index, updateItem, onRemove }: {
 
   return (
     <div className="border rounded p-3 space-y-2 bg-gray-50">
-      <div className="flex justify-between">
-        <span className="text-xs font-medium text-gray-500">#{index + 1}</span>
+      <div className="flex justify-between items-center">
+        <div className="flex items-center gap-0.5">
+          <span className="text-xs font-medium text-gray-500">#{index + 1}</span>
+          {index > 0 && <button onClick={() => onMove(-1)} className="text-[10px] text-gray-400 hover:text-gray-700 px-0.5" title="上移">▲</button>}
+          {index < total - 1 && <button onClick={() => onMove(1)} className="text-[10px] text-gray-400 hover:text-gray-700 px-0.5" title="下移">▼</button>}
+        </div>
         <button onClick={onRemove} className="text-xs text-red-500">删除</button>
       </div>
       <div className="grid grid-cols-2 gap-2">

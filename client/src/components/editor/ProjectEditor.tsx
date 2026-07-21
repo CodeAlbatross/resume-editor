@@ -16,6 +16,14 @@ export default function ProjectEditor() {
     setItems(projects.filter((_, i) => i !== idx));
   };
 
+  const move = (idx: number, dir: number) => {
+    const target = idx + dir;
+    if (target < 0 || target >= projects.length) return;
+    const items = [...projects];
+    [items[idx], items[target]] = [items[target], items[idx]];
+    setItems(items);
+  };
+
   const updateItem = (idx: number, field: string, value: string | string[]) => {
     const items = projects.map((item, i) =>
       i === idx ? { ...item, [field]: value } : item
@@ -34,19 +42,23 @@ export default function ProjectEditor() {
           key={idx}
           proj={proj}
           index={idx}
+          total={projects.length}
           updateItem={updateItem}
           onRemove={() => remove(idx)}
+          onMove={(dir) => move(idx, dir)}
         />
       ))}
     </div>
   );
 }
 
-function ProjectItem({ proj, index, updateItem, onRemove }: {
+function ProjectItem({ proj, index, total, updateItem, onRemove, onMove }: {
   proj: Project;
   index: number;
+  total: number;
   updateItem: (idx: number, field: string, value: string | string[]) => void;
   onRemove: () => void;
+  onMove: (dir: number) => void;
 }) {
   const [highlightsText, setHighlightsText] = useState(() => proj.highlights.join('\n'));
   const prevHighlightsRef = useRef(proj.highlights);
@@ -96,8 +108,12 @@ function ProjectItem({ proj, index, updateItem, onRemove }: {
 
   return (
     <div className="border rounded p-3 space-y-2 bg-gray-50">
-      <div className="flex justify-between">
-        <span className="text-xs font-medium text-gray-500">#{index + 1}</span>
+      <div className="flex justify-between items-center">
+        <div className="flex items-center gap-0.5">
+          <span className="text-xs font-medium text-gray-500">#{index + 1}</span>
+          {index > 0 && <button onClick={() => onMove(-1)} className="text-[10px] text-gray-400 hover:text-gray-700 px-0.5" title="上移">▲</button>}
+          {index < total - 1 && <button onClick={() => onMove(1)} className="text-[10px] text-gray-400 hover:text-gray-700 px-0.5" title="下移">▼</button>}
+        </div>
         <button onClick={onRemove} className="text-xs text-red-500">删除</button>
       </div>
       <div className="grid grid-cols-2 gap-2">

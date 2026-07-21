@@ -17,6 +17,27 @@ export default function SkillsEditor() {
     setItems(skills.filter((_, i) => i !== idx));
   };
 
+  const moveCategory = (idx: number, dir: number) => {
+    const target = idx + dir;
+    if (target < 0 || target >= skills.length) return;
+    const items = [...skills];
+    [items[idx], items[target]] = [items[target], items[idx]];
+    setItems(items);
+  };
+
+  const moveItem = (catIdx: number, itemIdx: number, dir: number) => {
+    const target = itemIdx + dir;
+    const cat = skills[catIdx];
+    if (target < 0 || target >= cat.items.length) return;
+    const items = skills.map((c, i) => {
+      if (i !== catIdx) return c;
+      const newItems = [...c.items];
+      [newItems[itemIdx], newItems[target]] = [newItems[target], newItems[itemIdx]];
+      return { ...c, items: newItems };
+    });
+    setItems(items);
+  };
+
   const updateCategory = (idx: number, value: string) => {
     const items = skills.map((item, i) => i === idx ? { ...item, category: value } : item);
     setItems(items);
@@ -62,8 +83,12 @@ export default function SkillsEditor() {
       </div>
       {skills.map((cat, catIdx) => (
         <div key={catIdx} className="border rounded p-3 space-y-2 bg-gray-50">
-          <div className="flex justify-between">
-            <span className="text-xs font-medium text-gray-500">分类 #{catIdx + 1}</span>
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-0.5">
+              <span className="text-xs font-medium text-gray-500">分类 #{catIdx + 1}</span>
+              {catIdx > 0 && <button onClick={() => moveCategory(catIdx, -1)} className="text-[10px] text-gray-400 hover:text-gray-700 px-0.5" title="上移分类">▲</button>}
+              {catIdx < skills.length - 1 && <button onClick={() => moveCategory(catIdx, 1)} className="text-[10px] text-gray-400 hover:text-gray-700 px-0.5" title="下移分类">▼</button>}
+            </div>
             <button onClick={() => remove(catIdx)} className="text-xs text-red-500">删除分类</button>
           </div>
           <div>
@@ -96,6 +121,8 @@ export default function SkillsEditor() {
                         <option key={o} value={o}>{o || '无'}</option>
                       ))}
                     </select>
+                    {itemIdx > 0 && <button onClick={() => moveItem(catIdx, itemIdx, -1)} className="text-[10px] text-gray-300 hover:text-gray-600 shrink-0" title="上移">▲</button>}
+                    {itemIdx < cat.items.length - 1 && <button onClick={() => moveItem(catIdx, itemIdx, 1)} className="text-[10px] text-gray-300 hover:text-gray-600 shrink-0" title="下移">▼</button>}
                     <button onClick={() => removeItem(catIdx, itemIdx)} className="text-xs text-red-400 hover:text-red-600 shrink-0">✕</button>
                   </div>
                 ))}
