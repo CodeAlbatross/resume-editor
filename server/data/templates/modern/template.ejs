@@ -4,19 +4,27 @@
 <meta charset="UTF-8">
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <style><%- style %></style>
+<style>
+  .theme-sidebar { background-color: <%- (data.themeColor || '#0891b2') + '15' %> !important; }
+  .theme-photo { border-color: <%- data.themeColor || '#0891b2' %> !important; }
+  .theme-title { color: <%- data.themeColor || '#0891b2' %> !important; }
+  .theme-h3 { color: <%- data.themeColor || '#0891b2' %> !important; border-bottom-color: <%- data.themeColor || '#0891b2' %> !important; }
+  .theme-tag { background-color: <%- (data.themeColor || '#0891b2') + '18' %> !important; color: <%- data.themeColor || '#0891b2' %> !important; }
+  .theme-border { border-bottom-color: <%- data.themeColor || '#0891b2' %> !important; }
+</style>
 </head>
 <body class="<%= compressClass %>">
   <div class="layout">
     <!-- Sidebar -->
-    <div class="sidebar">
+    <div class="sidebar theme-sidebar" style="background-color: <%- (data.themeColor || '#0891b2') + '15' %>">
       <% if (photoBase64) { %>
       <div class="header-photo">
-        <img src="<%= photoBase64 %>" alt="photo" />
+        <img class="theme-photo" src="<%= photoBase64 %>" alt="photo" style="border-color: <%- data.themeColor || '#0891b2' %>" />
       </div>
       <% } %>
 
       <div class="sidebar-section">
-        <h3>联系方式</h3>
+        <h3 class="theme-h3" style="color: <%- data.themeColor || '#0891b2' %>; border-bottom-color: <%- data.themeColor || '#0891b2' %>">联系方式</h3>
         <div class="contact-info">
           <% if (data.sections.personal.email) { %><p>&#9993; <%= data.sections.personal.email %></p><% } %>
           <% if (data.sections.personal.phone) { %><p>&#128222; <%= data.sections.personal.phone %></p><% } %>
@@ -24,58 +32,107 @@
         </div>
       </div>
 
+      <%
+        var tc = data.themeColor || '#0891b2';
+        var hided = data.compressSettings && data.compressSettings.hide;
+        var customFields = data.sections.customFields || [];
+        var defaultOrder = ['summary','experience','projects','education','skills','certificates','languages'];
+        var order = data.sectionOrder || defaultOrder;
+        if (data.sections.customFields && data.sections.customFields.length) {
+          data.sections.customFields.forEach(function(f) { if (order.indexOf(f.key) === -1) order.push(f.key); });
+        }
+        function skillName(item) { return typeof item === 'string' ? item : item.name; }
+        function skillLevel(item) { return typeof item === 'string' ? '' : (item.level || ''); }
+
+        // Sidebar: skills, languages, certificates + short custom fields
+        for (var si = 0; si < order.length; si++) {
+          var key = order[si];
+      %>
+
+      <% if (key === 'skills') { %>
       <% if (data.sections.skills && data.sections.skills.length) { %>
       <div class="sidebar-section">
-        <h3>技能专长</h3>
-        <div class="skills-tags">
-          <% data.sections.skills.forEach(function(skill) { %>
-            <% (skill.items || []).forEach(function(item) { %>
-              <span><%= item %></span>
+        <h3 class="theme-h3" style="color: <%- tc %>; border-bottom-color: <%- tc %>">技能专长</h3>
+        <% data.sections.skills.forEach(function(sk) { %>
+          <div style="margin-bottom:4px">
+            <div style="font-size:8.5pt;font-weight:600;color:#334155;margin-bottom:2px"><%= sk.category %></div>
+            <div class="skills-tags">
+            <% (sk.items || []).forEach(function(item) { %>
+              <span class="theme-tag" style="background-color:<%- tc %>18; color:<%- tc %>">
+                <%- skillName(item) %><% if (skillLevel(item)) { %><span style="opacity:0.6">·<%= skillLevel(item) %></span><% } %>
+              </span>
             <% }) %>
-          <% }) %>
-        </div>
+            </div>
+          </div>
+        <% }) %>
       </div>
       <% } %>
+      <% } %>
 
+      <% if (key === 'languages' && !hided) { %>
       <% if (data.sections.languages && data.sections.languages.length) { %>
       <div class="sidebar-section section-languages">
-        <h3>语言</h3>
+        <h3 class="theme-h3" style="color: <%- tc %>; border-bottom-color: <%- tc %>">语言</h3>
         <div class="skills-tags">
           <% data.sections.languages.forEach(function(lang) { %>
-            <span><%= lang.name %> &middot; <%= lang.level %></span>
+            <span class="theme-tag" style="background-color:<%- tc %>18; color:<%- tc %>"><%= lang.name %> &middot; <%= lang.level %></span>
           <% }) %>
         </div>
       </div>
+      <% } %>
       <% } %>
 
+      <% if (key === 'certificates' && !hided) { %>
       <% if (data.sections.certificates && data.sections.certificates.length) { %>
       <div class="sidebar-section section-certificates">
-        <h3>证书</h3>
-        <div class="skills-tags">
+        <h3 class="theme-h3" style="color: <%- tc %>; border-bottom-color: <%- tc %>">证书</h3>
+        <div class="contact-info">
           <% data.sections.certificates.forEach(function(cert) { %>
-            <span><%= cert.name %></span>
+            <p style="margin-bottom:4px"><strong><%= cert.name %></strong><br/><span style="font-size:8pt;color:#94a3b8"><%= cert.issuer %> (<%= cert.date %>)</span></p>
           <% }) %>
         </div>
       </div>
       <% } %>
+      <% } %>
+
+      <% // 短自定义模块放在侧边栏 %>
+      <% if (typeof key === 'string' && key.indexOf('custom_') === 0) { %>
+        <% var cf = customFields.filter(function(f) { return f.key === key; })[0]; %>
+        <% if (cf && cf.content.trim() && cf.content.length < 100) { %>
+      <div class="sidebar-section">
+        <h3 class="theme-h3" style="color: <%- tc %>; border-bottom-color: <%- tc %>"><%= cf.title %></h3>
+        <p style="font-size:9pt;color:#475569;white-space:pre-wrap"><%= cf.content %></p>
+      </div>
+        <% } %>
+      <% } %>
+
+      <% } // end sidebar loop %>
     </div>
 
     <!-- Main content -->
     <div class="main">
       <div class="name"><%= data.sections.personal.name || '姓名' %></div>
       <% if (data.sections.personal.title) { %>
-        <div class="title"><%= data.sections.personal.title %></div>
+        <div class="title theme-title" style="color: <%- data.themeColor || '#0891b2' %>"><%= data.sections.personal.title %></div>
       <% } %>
 
-      <% if (data.sections.summary && data.sections.summary.content) { %>
+      <%
+        // Main loop: summary, experience, projects, education + long custom fields
+        for (var mi = 0; mi < order.length; mi++) {
+          var mkey = order[mi];
+      %>
+
+      <% if (mkey === 'summary' && data.sections.summary && data.sections.summary.content) { %>
       <div class="section">
+        <div class="section-title theme-border" style="border-bottom-color: <%- tc %>">个人摘要</div>
         <p class="summary-text"><%= data.sections.summary.content %></p>
       </div>
       <% } %>
 
+      <% if (mkey === 'experience') { %>
+      <% if (data.sections.experience && data.sections.experience.length) { %>
       <div class="section">
-        <div class="section-title">工作经历</div>
-        <% if (data.sections.experience && data.sections.experience.length) { %>
+        <div class="section-title theme-border" style="border-bottom-color: <%- tc %>">工作经历</div>
         <% data.sections.experience.forEach(function(exp) { %>
         <div class="item">
           <div class="item-header">
@@ -90,12 +147,14 @@
           <% } %>
         </div>
         <% }) %>
-        <% } %>
       </div>
+      <% } %>
+      <% } %>
 
+      <% if (mkey === 'projects') { %>
+      <% if (data.sections.projects && data.sections.projects.length) { %>
       <div class="section">
-        <div class="section-title">项目经历</div>
-        <% if (data.sections.projects && data.sections.projects.length) { %>
+        <div class="section-title theme-border" style="border-bottom-color: <%- tc %>">项目经历</div>
         <% data.sections.projects.forEach(function(proj) { %>
         <div class="item">
           <div class="item-header">
@@ -110,12 +169,14 @@
           <% } %>
         </div>
         <% }) %>
-        <% } %>
       </div>
+      <% } %>
+      <% } %>
 
+      <% if (mkey === 'education') { %>
+      <% if (data.sections.education && data.sections.education.length) { %>
       <div class="section">
-        <div class="section-title">教育背景</div>
-        <% if (data.sections.education && data.sections.education.length) { %>
+        <div class="section-title theme-border" style="border-bottom-color: <%- tc %>">教育背景</div>
         <% data.sections.education.forEach(function(edu) { %>
         <div class="item">
           <div class="item-header">
@@ -125,8 +186,22 @@
           <% if (edu.gpa) { %><div class="item-desc">GPA: <%= edu.gpa %></div><% } %>
         </div>
         <% }) %>
-        <% } %>
       </div>
+      <% } %>
+      <% } %>
+
+      <% // 长自定义模块放在主区域 %>
+      <% if (typeof mkey === 'string' && mkey.indexOf('custom_') === 0) { %>
+        <% var cf = customFields.filter(function(f) { return f.key === mkey; })[0]; %>
+        <% if (cf && cf.content.trim() && cf.content.length >= 100) { %>
+      <div class="section">
+        <div class="section-title theme-border" style="border-bottom-color: <%- tc %>"><%= cf.title %></div>
+        <p style="font-size:10pt;color:#475569;white-space:pre-wrap"><%= cf.content %></p>
+      </div>
+        <% } %>
+      <% } %>
+
+      <% } // end main loop %>
     </div>
   </div>
 </body>

@@ -4,17 +4,42 @@
 <meta charset="UTF-8">
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <style><%- style %></style>
+<style>
+  .theme-header { border-bottom-color: <%- data.themeColor || '#7c3aed' %> !important; }
+  .theme-photo { border-color: <%- data.themeColor || '#7c3aed' %> !important; }
+  .theme-title { color: <%- data.themeColor || '#7c3aed' %> !important; }
+  .theme-section-title { color: <%- data.themeColor || '#7c3aed' %> !important; }
+  .theme-tag { background-color: <%- (data.themeColor || '#7c3aed') + '15' %> !important; color: <%- data.themeColor || '#7c3aed' %> !important; }
+  .item-sub { color: <%- data.themeColor || '#7c3aed' %> !important; }
+</style>
 </head>
 <body class="<%= compressClass %>">
-  <div class="header">
-    <% if (photoBase64) { %>
-    <div class="header-photo">
-      <img src="<%= photoBase64 %>" alt="photo" />
-    </div>
-    <% } %>
+  <%
+    var tc = data.themeColor || '#7c3aed';
+    var hided = data.compressSettings && data.compressSettings.hide;
+    var trimmed = data.compressSettings && data.compressSettings.trim;
+    var customFields = data.sections.customFields || [];
+    var defaultOrder = ['summary','experience','projects','education','skills','certificates','languages'];
+    var order = data.sectionOrder || defaultOrder;
+    if (data.sections.customFields && data.sections.customFields.length) {
+      data.sections.customFields.forEach(function(f) { if (order.indexOf(f.key) === -1) order.push(f.key); });
+    }
+    function skillName(item) { return typeof item === 'string' ? item : item.name; }
+    function skillLevel(item) { return typeof item === 'string' ? '' : (item.level || ''); }
+  %>
+
+  <!-- Photo -->
+  <% if (photoBase64) { %>
+  <div style="text-align:center; margin-bottom:8px">
+    <img class="theme-photo" src="<%= photoBase64 %>" alt="photo" style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:2px solid <%- tc %>" />
+  </div>
+  <% } %>
+
+  <!-- Header -->
+  <div class="header theme-header" style="border-bottom-color: <%- tc %>">
     <div class="name"><%= data.sections.personal.name || '姓名' %></div>
     <% if (data.sections.personal.title) { %>
-      <div class="title"><%= data.sections.personal.title %></div>
+      <div class="title theme-title" style="color: <%- tc %>"><%= data.sections.personal.title %></div>
     <% } %>
     <div class="contact">
       <% if (data.sections.personal.email) { %><span>&#9993; <%= data.sections.personal.email %></span><% } %>
@@ -23,103 +48,142 @@
     </div>
   </div>
 
-  <% if (data.sections.summary && data.sections.summary.content) { %>
+  <%
+    for (var si = 0; si < order.length; si++) {
+      var key = order[si];
+      if (hided && (key === 'certificates' || key === 'languages')) continue;
+  %>
+
+  <% if (key === 'summary' && data.sections.summary && data.sections.summary.content) { %>
   <div class="section">
+    <div class="section-title theme-section-title" style="color: <%- tc %>">个人摘要</div>
     <p class="summary-text"><%= data.sections.summary.content %></p>
   </div>
   <% } %>
 
-  <div class="section">
-    <div class="section-title">工作经历</div>
+  <% if (key === 'experience') { %>
     <% if (data.sections.experience && data.sections.experience.length) { %>
-    <% data.sections.experience.forEach(function(exp) { %>
-    <div class="item">
-      <div class="item-header">
-        <div><span class="item-name"><%= exp.company %></span> &middot; <span class="item-sub"><%= exp.position %></span></div>
-        <div class="item-date"><%= exp.startDate %> ~ <%= exp.endDate %></div>
+    <div class="section">
+      <div class="section-title theme-section-title" style="color: <%- tc %>">工作经历</div>
+      <% data.sections.experience.forEach(function(exp) { %>
+      <div class="item">
+        <div class="item-header">
+          <div><span class="item-name"><%= exp.company %></span> &middot; <span class="item-sub" style="color: <%- tc %>"><%= exp.position %></span></div>
+          <div class="item-date"><%= exp.startDate %> ~ <%= exp.endDate %></div>
+        </div>
+        <% if (exp.description) { %><div class="item-desc"><%= exp.description %></div><% } %>
+        <% if (exp.highlights && exp.highlights.length) { %>
+        <ul class="item-highlights">
+          <% var hl = trimmed ? exp.highlights.slice(0,3) : exp.highlights; %>
+          <% hl.forEach(function(h) { %><li><%= h %></li><% }) %>
+        </ul>
+        <% } %>
       </div>
-      <% if (exp.description) { %><div class="item-desc"><%= exp.description %></div><% } %>
-      <% if (exp.highlights && exp.highlights.length) { %>
-      <ul class="item-highlights">
-        <% exp.highlights.forEach(function(h) { %><li><%= h %></li><% }) %>
-      </ul>
-      <% } %>
+      <% }) %>
     </div>
-    <% }) %>
     <% } %>
-  </div>
+  <% } %>
 
-  <div class="section">
-    <div class="section-title">项目经历</div>
+  <% if (key === 'projects') { %>
     <% if (data.sections.projects && data.sections.projects.length) { %>
-    <% data.sections.projects.forEach(function(proj) { %>
-    <div class="item">
-      <div class="item-header">
-        <div><span class="item-name"><%= proj.name %></span> &middot; <span class="item-sub"><%= proj.role %></span></div>
-        <div class="item-date"><%= proj.technologies ? proj.technologies.join(', ') : '' %></div>
+    <div class="section">
+      <div class="section-title theme-section-title" style="color: <%- tc %>">项目经历</div>
+      <% data.sections.projects.forEach(function(proj) { %>
+      <div class="item">
+        <div class="item-header">
+          <div><span class="item-name"><%= proj.name %></span> &middot; <span class="item-sub" style="color: <%- tc %>"><%= proj.role %></span></div>
+          <div class="item-date"><%= proj.technologies ? proj.technologies.join(', ') : '' %></div>
+        </div>
+        <% if (proj.description) { %><div class="item-desc"><%= proj.description %></div><% } %>
+        <% if (proj.highlights && proj.highlights.length) { %>
+        <ul class="item-highlights">
+          <% var phl = trimmed ? proj.highlights.slice(0,3) : proj.highlights; %>
+          <% phl.forEach(function(h) { %><li><%= h %></li><% }) %>
+        </ul>
+        <% } %>
       </div>
-      <% if (proj.description) { %><div class="item-desc"><%= proj.description %></div><% } %>
-      <% if (proj.highlights && proj.highlights.length) { %>
-      <ul class="item-highlights">
-        <% proj.highlights.forEach(function(h) { %><li><%= h %></li><% }) %>
-      </ul>
-      <% } %>
+      <% }) %>
     </div>
-    <% }) %>
     <% } %>
-  </div>
+  <% } %>
 
-  <div class="section">
-    <div class="section-title">教育背景</div>
+  <% if (key === 'education') { %>
     <% if (data.sections.education && data.sections.education.length) { %>
-    <% data.sections.education.forEach(function(edu) { %>
-    <div class="item">
-      <div class="item-header">
-        <div><span class="item-name"><%= edu.school %></span> &middot; <span class="item-sub"><%= edu.major %></span> &middot; <%= edu.degree %></div>
-        <div class="item-date"><%= edu.startDate %> ~ <%= edu.endDate %></div>
+    <div class="section">
+      <div class="section-title theme-section-title" style="color: <%- tc %>">教育背景</div>
+      <% data.sections.education.forEach(function(edu) { %>
+      <div class="item">
+        <div class="item-header">
+          <div><span class="item-name"><%= edu.school %></span> &middot; <span class="item-sub" style="color: <%- tc %>"><%= edu.major %></span> &middot; <%= edu.degree %></div>
+          <div class="item-date"><%= edu.startDate %> ~ <%= edu.endDate %></div>
+        </div>
+        <% if (edu.gpa) { %><div class="item-desc">GPA: <%= edu.gpa %></div><% } %>
       </div>
-      <% if (edu.gpa) { %><div class="item-desc">GPA: <%= edu.gpa %></div><% } %>
-    </div>
-    <% }) %>
-    <% } %>
-  </div>
-
-  <div class="section section-skills">
-    <div class="section-title">技能专长</div>
-    <div class="skills">
-      <% if (data.sections.skills && data.sections.skills.length) { %>
-      <% data.sections.skills.forEach(function(skill) { %>
-        <% (skill.items || []).forEach(function(item) { %>
-          <span class="tag"><%= item %></span>
-        <% }) %>
       <% }) %>
-      <% } %>
     </div>
-  </div>
+    <% } %>
+  <% } %>
 
-  <div class="section section-certificates">
-    <div class="section-title">证书</div>
+  <% if (key === 'skills') { %>
+    <% if (data.sections.skills && data.sections.skills.length) { %>
+    <div class="section section-skills">
+      <div class="section-title theme-section-title" style="color: <%- tc %>">技能专长</div>
+      <div style="display:flex;flex-wrap:wrap;gap:4px 8px">
+      <% data.sections.skills.forEach(function(sk) { %>
+        <div style="display:inline;white-space:nowrap">
+          <span style="font-size:8pt;font-weight:500;color:#4b5563"><%= sk.category %>：</span>
+          <% (sk.items || []).forEach(function(item) { %>
+            <span style="font-size:7.5pt;background-color:<%- tc %>15; color:<%- tc %>;display:inline-block;padding:2px 8px;border-radius:10px;margin:1px 2px 1px 0;line-height:1.5">
+              <%- skillName(item) %><% if (skillLevel(item)) { %><span style="opacity:0.6">·<%= skillLevel(item) %></span><% } %>
+            </span>
+          <% }) %>
+        </div>
+      <% }) %>
+      </div>
+    </div>
+    <% } %>
+  <% } %>
+
+  <% if (key === 'certificates') { %>
     <% if (data.sections.certificates && data.sections.certificates.length) { %>
-    <% data.sections.certificates.forEach(function(cert) { %>
-    <div class="item">
-      <div class="item-header">
-        <div><span class="item-name"><%= cert.name %></span> &middot; <span class="item-sub"><%= cert.issuer %></span></div>
-        <div class="item-date"><%= cert.date %></div>
+    <div class="section section-certificates">
+      <div class="section-title theme-section-title" style="color: <%- tc %>">证书</div>
+      <% data.sections.certificates.forEach(function(cert) { %>
+      <div class="item">
+        <div class="item-header">
+          <div><span class="item-name"><%= cert.name %></span> &middot; <span class="item-sub" style="color: <%- tc %>"><%= cert.issuer %></span></div>
+          <div class="item-date"><%= cert.date %></div>
+        </div>
+      </div>
+      <% }) %>
+    </div>
+    <% } %>
+  <% } %>
+
+  <% if (key === 'languages') { %>
+    <% if (data.sections.languages && data.sections.languages.length) { %>
+    <div class="section section-languages">
+      <div class="section-title theme-section-title" style="color: <%- tc %>">语言</div>
+      <div class="skills" style="justify-content:flex-start">
+        <% data.sections.languages.forEach(function(lang) { %>
+          <span class="tag theme-tag" style="background-color:<%- tc %>15; color:<%- tc %>"><%= lang.name %> &middot; <%= lang.level %></span>
+        <% }) %>
       </div>
     </div>
-    <% }) %>
     <% } %>
-  </div>
+  <% } %>
 
-  <div class="section section-languages">
-    <div class="section-title">语言</div>
-    <div class="skills">
-      <% if (data.sections.languages && data.sections.languages.length) { %>
-      <% data.sections.languages.forEach(function(lang) { %>
-        <span class="tag"><%= lang.name %> &middot; <%= lang.level %></span>
-      <% }) %>
-      <% } %>
+  <% // 自定义模块 %>
+  <% if (typeof key === 'string' && key.indexOf('custom_') === 0) { %>
+    <% var cf = customFields.filter(function(f) { return f.key === key; })[0]; %>
+    <% if (cf && cf.content.trim()) { %>
+    <div class="section">
+      <div class="section-title theme-section-title" style="color: <%- tc %>"><%= cf.title %></div>
+      <p style="font-size:9pt;color:#475569;white-space:pre-wrap"><%= cf.content %></p>
     </div>
-  </div>
+    <% } %>
+  <% } %>
+
+  <% } // end sectionOrder loop %>
 </body>
 </html>

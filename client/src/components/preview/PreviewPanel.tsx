@@ -108,13 +108,12 @@ export default function PreviewPanel() {
         <TemplateComp />
       </div>
 
-      {/* 压缩弹窗 */}
+      {/* 压缩弹窗 — 应用后预览即刻反映设置 */}
       <CompressDialog
         open={showCompress}
         onClose={() => setShowCompress(false)}
-        onApply={async () => {
+        onApply={() => {
           setShowCompress(false);
-          await handleExport(true);
         }}
       />
     </div>

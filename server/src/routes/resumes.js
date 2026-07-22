@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import * as storage from '../services/storage.js';
+import * as versionService from '../services/versionService.js';
 
 const router = Router();
 
@@ -39,7 +40,14 @@ router.put('/:id', async (req, res) => {
   try {
     const existing = await storage.readResume(req.params.id);
     if (!existing) return res.status(404).json({ error: 'not found' });
-    const updated = await storage.writeResume(req.params.id, { ...existing, ...req.body, id: req.params.id });
+    // 创建版本快照（不阻塞保存）
+    const versionName = req.body._versionName || '手动保存';
+    versionService.createVersion(req.params.id, existing, versionName).catch(e =>
+      console.error('Version save failed:', e.message)
+    );
+    // 去掉元字段，不写入简历数据
+    const { _versionName: _, ...cleanBody } = req.body;
+    const updated = await storage.writeResume(req.params.id, { ...existing, ...cleanBody, id: req.params.id });
     res.json(updated);
   } catch (e) {
     res.status(500).json({ error: e.message });
@@ -51,8 +59,14 @@ router.patch('/:id', async (req, res) => {
   try {
     const existing = await storage.readResume(req.params.id);
     if (!existing) return res.status(404).json({ error: 'not found' });
+    // 创建版本快照（不阻塞保存）
+    const versionName = req.body._versionName || '手动保存';
+    versionService.createVersion(req.params.id, existing, versionName).catch(e =>
+      console.error('Version save failed:', e.message)
+    );
+    const { _versionName: _, ...cleanBody } = req.body;
     const merged = JSON.parse(JSON.stringify(existing));
-    for (const key of Object.keys(req.body)) {
+    for (const key of Object.keys(cleanBody)) {
       if (key === 'sections') {
         for (const sectionKey of Object.keys(req.body.sections)) {
           merged.sections[sectionKey] = req.body.sections[sectionKey];

@@ -6,3 +6,6 @@ server/data/resumes/*
 !server/data/resumes/.gitkeep
 .DS_Store
 *.log
+
+# 版本历史快照
+server/data/versions/

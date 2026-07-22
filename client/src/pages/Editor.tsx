@@ -13,6 +13,7 @@ import CertificateEditor from '../components/editor/CertificateEditor';
 import LanguageEditor from '../components/editor/LanguageEditor';
 import CustomEditor from '../components/editor/CustomEditor';
 import PreviewPanel from '../components/preview/PreviewPanel';
+import VersionHistory from '../components/editor/VersionHistory';
 
 const DEFAULT_LABELS: Record<string, string> = {
   personal: '个人信息', summary: '个人摘要', experience: '工作经历',
@@ -33,6 +34,7 @@ export default function Editor() {
   const [activeSection, setActiveSection] = useState('personal');
   const [editingName, setEditingName] = useState(false);
   const [nameDraft, setNameDraft] = useState('');
+  const [showVersions, setShowVersions] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -110,6 +112,7 @@ export default function Editor() {
             <span>🎨</span>
             <input type="color" value={resume.themeColor || '#2563eb'} onChange={e => updateResumeMeta({ themeColor: e.target.value })} className="w-6 h-6 rounded cursor-pointer border" />
           </label>
+          <button onClick={() => setShowVersions(true)} className="px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded border border-gray-300">版本历史</button>
           <button onClick={handleSave} className="px-3 py-1.5 bg-blue-600 text-white text-sm rounded hover:bg-blue-700">保存</button>
         </div>
       </header>
@@ -156,6 +159,20 @@ export default function Editor() {
           <PreviewPanel />
         </div>
       </div>
+
+      {/* 版本历史弹窗 */}
+      <VersionHistory
+        resumeId={resume.id}
+        open={showVersions}
+        onClose={() => setShowVersions(false)}
+        onRestored={() => {
+          api.fetchResume(resume.id).then((r) => {
+            if (!r.themeColor) r.themeColor = '#2563eb';
+            if (!r.sections.customFields) (r.sections as any).customFields = [];
+            setResume(r);
+          }).catch(() => alert('重新加载简历失败'));
+        }}
+      />
     </div>
   );
 }

@@ -5,8 +5,9 @@ function sLevel(sk: any) { return typeof sk === 'string' ? '' : (sk.level || '')
 
 export default function CompactTemplate() {
   const resume = useResumeStore((s) => s.resume);
+  const compressSettings = useResumeStore((s) => s.compressSettings);
   if (!resume) return null;
-  const { sections, compressSettings, themeColor, sectionOrder } = resume;
+  const { sections, themeColor, sectionOrder } = resume;
   const c = themeColor || '#7c3aed';
   const customFields = sections.customFields || [];
 
@@ -44,6 +45,7 @@ export default function CompactTemplate() {
             {sections.projects.map((proj, i) => (
               <div key={i} className="mb-1.5">
                 <div className="flex justify-between items-baseline"><span className="font-semibold text-xs">{proj.name}</span><span className="text-[9px] text-gray-400">{proj.technologies.join(', ')}</span></div>
+                {proj.role && <p className="text-[10px] text-gray-500">{proj.role}</p>}
                 <p className="text-xs text-gray-600">{proj.description}</p>
                 {(proj.highlights.length > 0 && !compressSettings.trim) && <ul className="list-disc pl-4 text-xs text-gray-600 mt-0.5">{proj.highlights.map((h, j) => <li key={j}>{h}</li>)}</ul>}
                 {(proj.highlights.length > 0 && compressSettings.trim) && <ul className="list-disc pl-4 text-xs text-gray-600 mt-0.5">{proj.highlights.slice(0, 3).map((h, j) => <li key={j}>{h}</li>)}</ul>}
@@ -56,7 +58,10 @@ export default function CompactTemplate() {
           <div key={key} className="mb-3">
             <SectionTitle text="教育背景" />
             {sections.education.map((edu, i) => (
-              <div key={i} className="flex justify-between text-xs"><span><strong>{edu.school}</strong> · {edu.major} · {edu.degree}</span><span className="text-gray-400">{edu.startDate} ~ {edu.endDate}</span></div>
+              <div key={i} className="mb-1">
+                <div className="flex justify-between text-xs"><span><strong>{edu.school}</strong> · {edu.major} · {edu.degree}</span><span className="text-gray-400">{edu.startDate} ~ {edu.endDate}</span></div>
+                {edu.gpa && <p className="text-[9px] text-gray-500 mt-0.5">GPA: {edu.gpa}</p>}
+              </div>
             ))}
           </div>
         ) : null;
@@ -64,16 +69,18 @@ export default function CompactTemplate() {
         return sections.skills.length > 0 ? (
           <div key={key} className="mb-3">
             <SectionTitle text="技能专长" />
-            {sections.skills.map((sk, i) => (
-              <div key={i} className="mb-0.5">
-                <span className="text-xs font-medium">{sk.category}：</span>
-                {sk.items.map((item: any, j: number) => (
-    <span key={j} className="inline-block text-[9px] px-1.5 py-0.5 rounded mr-0.5 mb-0.5" style={{ backgroundColor: c + '15', color: c }}>
-      {sName(item)}{sLevel(item) ? <span className="ml-0.5 opacity-60">·{sLevel(item)}</span> : null}
-    </span>
-  ))}
-              </div>
-            ))}
+            <div className="flex flex-wrap gap-x-2">
+              {sections.skills.map((sk, i) => (
+                <div key={i} className="whitespace-nowrap">
+                  <span className="text-[11px] font-medium text-gray-600">{sk.category}：</span>
+                  {sk.items.map((item: any, j: number) => (
+                    <span key={j} className="inline-block text-[9px] px-1.5 py-0.5 rounded mr-0.5 mb-0.5" style={{ backgroundColor: c + '15', color: c }}>
+                      {sName(item)}{sLevel(item) ? <span className="ml-0.5 opacity-60">·{sLevel(item)}</span> : null}
+                    </span>
+                  ))}
+                </div>
+              ))}
+            </div>
           </div>
         ) : null;
       case 'certificates':

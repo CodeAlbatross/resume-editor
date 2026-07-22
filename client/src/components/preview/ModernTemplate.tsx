@@ -5,8 +5,9 @@ function sLevel(sk: any) { return typeof sk === 'string' ? '' : (sk.level || '')
 
 export default function ModernTemplate() {
   const resume = useResumeStore((s) => s.resume);
+  const compressSettings = useResumeStore((s) => s.compressSettings);
   if (!resume) return null;
-  const { sections, compressSettings, themeColor, sectionOrder } = resume;
+  const { sections, themeColor, sectionOrder } = resume;
   const c = themeColor || '#0891b2';
   const customFields = sections.customFields || [];
 
@@ -41,6 +42,7 @@ export default function ModernTemplate() {
             {sections.projects.map((proj, i) => (
               <div key={i} className="mb-2">
                 <div className="flex justify-between items-baseline"><span className="font-semibold">{proj.name}</span><span className="text-xs text-gray-400">{proj.technologies.join(', ')}</span></div>
+                {proj.role && <p className="text-sm text-gray-500 italic">{proj.role}</p>}
                 <p className="text-sm text-gray-600">{proj.description}</p>
                 {proj.highlights.length > 0 && <ul className="list-disc pl-4 text-sm text-gray-600 mt-1">{proj.highlights.map((h, j) => <li key={j}>{h}</li>)}</ul>}
               </div>
@@ -52,7 +54,10 @@ export default function ModernTemplate() {
           <div key={key} className="mb-4">
             <SectionTitle text="教育背景" />
             {sections.education.map((edu, i) => (
-              <div key={i} className="flex justify-between text-sm"><span><strong>{edu.school}</strong> · {edu.major} · {edu.degree}</span><span className="text-gray-400">{edu.startDate} ~ {edu.endDate}</span></div>
+              <div key={i} className="mb-1">
+                <div className="flex justify-between text-sm"><span><strong>{edu.school}</strong> · {edu.major} · {edu.degree}</span><span className="text-gray-400">{edu.startDate} ~ {edu.endDate}</span></div>
+                {edu.gpa && <p className="text-xs text-gray-500 mt-0.5">GPA: {edu.gpa}</p>}
+              </div>
             ))}
           </div>
         ) : null;

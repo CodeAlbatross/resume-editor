@@ -55,7 +55,14 @@
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:5173)",
       "Bash(tasklist //FI \"PID eq 7800\")",
       "Bash(pwsh -Command \"Get-CimInstance Win32_Process -Filter 'ProcessId = 7800' | Select-Object CommandLine\")",
-      "Bash(pdftotext /tmp/resume-test-cn.pdf /tmp/resume-text.txt)"
+      "Bash(pdftotext /tmp/resume-test-cn.pdf /tmp/resume-text.txt)",
+      "Bash(taskkill *)",
+      "Bash(node -e \"const d=require\\('fs'\\).readFileSync\\('/dev/stdin','utf-8'\\); const j=JSON.parse\\(d\\); console.log\\('Theme:', j.themeColor\\); console.log\\('SectionOrder:', j.sectionOrder\\); console.log\\('Skills:', JSON.stringify\\(j.sections.skills, null, 2\\)\\); console.log\\('CustomFields:', JSON.stringify\\(j.sections.customFields, null, 2\\)\\); console.log\\('CompressSettings:', JSON.stringify\\(j.compressSettings\\)\\)\")",
+      "Bash(node -e \"const j=JSON.parse\\(require\\('fs'\\).readFileSync\\('/tmp/resume_data.json','utf-8'\\)\\); console.log\\('Theme:', j.themeColor\\); console.log\\('SectionOrder:', j.sectionOrder\\); console.log\\('Skills:', JSON.stringify\\(j.sections.skills, null, 2\\).slice\\(0,500\\)\\); console.log\\('CustomFields:', JSON.stringify\\(j.sections.customFields, null, 2\\)\\); console.log\\('CompressSettings:', JSON.stringify\\(j.compressSettings\\)\\);\")",
+      "Bash(node -e \"const j=JSON.parse\\(require\\('fs'\\).readFileSync\\('C:/Users/admin/Desktop/resume_data.json','utf-8'\\)\\); console.log\\('Theme:', j.themeColor\\); console.log\\('SectionOrder:', j.sectionOrder\\); console.log\\('Skills:', JSON.stringify\\(j.sections.skills, null, 2\\).slice\\(0,500\\)\\); console.log\\('CustomFields:', JSON.stringify\\(j.sections.customFields, null, 2\\)\\); console.log\\('CompressSettings:', JSON.stringify\\(j.compressSettings\\)\\);\")",
+      "Bash(curl -s http://localhost:3001/api/resumes/563f7351-eed6-48d3-a554-f148dbc01d0a)",
+      "Bash(node -e \"const j=JSON.parse\\(require\\('fs'\\).readFileSync\\('C:/Users/Admin/Desktop/resume_check.json','utf-8'\\)\\); console.log\\('Summary:', JSON.stringify\\(j.sections.summary\\)\\); console.log\\('---Education:'\\); j.sections.education.forEach\\(\\(e,i\\)=>console.log\\(i, JSON.stringify\\(e\\)\\)\\); console.log\\('---Experience:'\\); j.sections.experience.forEach\\(\\(e,i\\)=>console.log\\(i, JSON.stringify\\(e\\)\\)\\);\")",
+      "Bash(node *)"
     ]
   }
 }

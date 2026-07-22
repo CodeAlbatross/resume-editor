@@ -6,6 +6,7 @@ import resumesRouter from './routes/resumes.js';
 import photosRouter from './routes/photos.js';
 import templatesRouter from './routes/templates.js';
 import pdfRouter from './routes/pdf.js';
+import versionsRouter from './routes/versions.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -26,6 +27,9 @@ app.get('/api/health', (req, res) => {
 
 // 简历 CRUD API
 app.use('/api/resumes', resumesRouter);
+
+// 版本历史 API (嵌套在 resumes 下)
+app.use('/api/resumes/:id/versions', versionsRouter);
 
 // 照片上传 API
 app.use('/api/photo', photosRouter);

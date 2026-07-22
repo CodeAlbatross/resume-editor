@@ -33,7 +33,7 @@ body.hide .section-languages { display: none; }
 .item-highlights li { margin-bottom: 0px; }
 
 .skills { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; }
-.skills .tag { background: #f3e8ff; color: #7c3aed; padding: 1px 8px; border-radius: 10px; font-size: 8pt; }
+.skills .tag { background: #f3e8ff; color: #7c3aed; padding: 2px 8px; border-radius: 10px; font-size: 7.5pt; }
 
 /* Summary section */
-.summary-text { font-size: 9pt; color: #475569; text-align: center; }
+.summary-text { font-size: 9pt; color: #475569; text-align: left; }

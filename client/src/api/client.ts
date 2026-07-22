@@ -59,3 +59,31 @@ export async function checkOverflow(resumeId: string, template: string, compress
   const { data } = await http.post('/pdf/check-overflow', { resumeId, template, compress });
   return data.overflow;
 }
+
+// === 版本历史 API ===
+
+export interface VersionMeta {
+  versionId: string;
+  timestamp: string;
+  name: string;
+  resumeSize: number;
+}
+
+export async function fetchVersions(resumeId: string): Promise<VersionMeta[]> {
+  const { data } = await http.get(`/resumes/${resumeId}/versions`);
+  return data;
+}
+
+export async function createNamedVersion(resumeId: string, name: string): Promise<VersionMeta> {
+  const { data } = await http.post(`/resumes/${resumeId}/versions`, { name });
+  return data;
+}
+
+export async function restoreVersion(resumeId: string, versionId: string): Promise<any> {
+  const { data } = await http.post(`/resumes/${resumeId}/versions/${versionId}/restore`);
+  return data;
+}
+
+export async function deleteVersion(resumeId: string, versionId: string): Promise<void> {
+  await http.delete(`/resumes/${resumeId}/versions/${versionId}`);
+}
