@@ -9,3 +9,6 @@ server/data/resumes/*
 
 # 版本历史快照
 server/data/versions/
+
+# AI 配置
+server/.env
