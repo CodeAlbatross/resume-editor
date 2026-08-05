@@ -80,21 +80,21 @@ client/src/pages/Editor.tsx          # 顶栏加 🤖 按钮
 client/src/types/resume.ts           # 追加 AI 相关类型（如 AiChatMessage）
 ```
 
-**✨ 按钮覆盖范围**：只加在**内容型编辑器**的标题栏上（这些区块的文本值得 AI 润色）：
+**✨ 按钮覆盖范围**：只加在**有文本润色目标**的内容区块上：
 
-| 编辑器组件 | 区块 | 是否加 ✨ |
-|---|---|---|
-| `SummaryEditor.tsx` | 个人摘要 | ✅ |
-| `ExperienceEditor.tsx` | 工作经历（逐条可优化） | ✅ |
-| `ProjectEditor.tsx` | 项目经历（逐条可优化） | ✅ |
-| `EducationEditor.tsx` | 教育背景 | ✅ |
-| `SkillsEditor.tsx` | 技能专长 | ✅ |
-| `PersonalInfoEditor.tsx` | 个人信息 | ❌ 纯联系信息，无需润色 |
-| `CertificateEditor.tsx` | 证书 | ❌ |
-| `LanguageEditor.tsx` | 语言 | ❌ |
-| `CustomEditor.tsx` | 自定义模块 | ❌ 内容用户自控 |
+| 编辑器组件 | 区块 | 是否加 ✨ | 润色目标字段 |
+|---|---|---|---|
+| `SummaryEditor.tsx` | 个人摘要 | ✅ 标题栏 | `summary.content` |
+| `ExperienceEditor.tsx` | 工作经历 | ✅ 每条 item 内 | 该项 `description` |
+| `ProjectEditor.tsx` | 项目经历 | ✅ 每条 item 内 | 该项 `description` |
+| `EducationEditor.tsx` | 教育背景 | ❌ 结构化数据（学校/学位/日期），无文本可润色 | — |
+| `SkillsEditor.tsx` | 技能专长 | ❌ 结构化数据（分类/技能项），无文本可润色 | — |
+| `PersonalInfoEditor.tsx` | 个人信息 | ❌ 纯联系信息 | — |
+| `CertificateEditor.tsx` | 证书 | ❌ | — |
+| `LanguageEditor.tsx` | 语言 | ❌ | — |
+| `CustomEditor.tsx` | 自定义模块 | ❌ 内容用户自控 | — |
 
-工作经历/项目经历是列表区块，**每条 item 也提供一个小 ✨ 按钮**（对应 `itemIndex`），同时区块标题栏提供「整块优化」。个人摘要/教育背景/技能是单值区块，只有标题栏一个 ✨ 按钮。
+**优化一律针对单个文本目标**：AI 返回纯文本，前端写入对应字段。不做「整块优化」和结构化数据改写（无文本目标、JSON 往返不可靠）。个人摘要只有标题栏一个 ✨；工作经历/项目经历每条 item 内各有一个小 ✨。
 
 ## 6. 后端设计
 
@@ -159,21 +159,21 @@ DEEPSEEK_MODEL=deepseek-chat
 
 ### 6.5 依赖新增
 
-- 服务端：`dotenv`（读 .env）
+- 服务端：**无新增依赖**（Node ≥20.12 内置 `process.loadEnvFile()` 读 .env；`fetch` 和 `node:test` 为 Node 内置。目标环境为 Node 24）
 - 前端：无
 
 ## 7. 前端设计
 
 ### 7.1 分区块 ✨ 按钮（OptimizeButton.tsx）
 
-- **位置**：内容型编辑器区块标题栏右侧，`✨` 小按钮（覆盖范围见第 5 节表格）
-- **列表区块（工作经历/项目经历）**：每条 item 内也有小 ✨ 按钮（对应 `itemIndex`），标题栏另有「整块优化」
+- **位置**：有文本润色目标的区块上（覆盖范围见第 5 节表格）
+- **列表区块（工作经历/项目经历）**：每条 item 内有一个小 ✨ 按钮，对应 `itemIndex`（该条 `description` 为润色目标）
 - **点击流程**：
   1. 弹输入框（可选），用户写附加指令
   2. 点「开始优化」→ 调 `/api/ai/optimize`，SSE 流式渲染
   3. 弹窗显示上下对比：原文（灰）在上，AI 结果（高亮）在下，流式逐字更新
   4. 底部按钮：**「应用」**（写入简历）+ **「撤销」**（不改动关闭）
-- **应用时的写入逻辑**：单值区块（摘要/教育/技能）直接 `updateSection` 覆盖该区块内容；列表区块写入 `itemIndex` 对应那条 item，整块优化则覆盖整个数组
+- **应用时的写入逻辑**：个人摘要 → `updateSection('summary', { content: result })`；工作经历第 i 条 → 把该条 `description` 替换为 `result`；项目经历同理
 
 ### 7.2 AI 助手侧边栏（AIAssistant.tsx + AiChatPanel.tsx）
 
@@ -210,8 +210,8 @@ streamingSection: string | null
 
 ## 9. 测试
 
-- 后端单元：mock DeepSeek 响应，验证 Prompt 组装与 SSE 格式
-- 后端集成：无 key 返回 503；有 key 调真实接口（可选）
+- 后端单元（`node:test`，Node 内置）：mock DeepSeek 响应，验证 Prompt 组装与 SSE 透传
+- 后端路由：无 key 返回 503；SSE 事件格式正确
 - 前端手动验收：
   - ① 未配置 key 时按钮禁用
   - ② 分区块优化对比正确
