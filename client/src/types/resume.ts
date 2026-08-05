@@ -113,3 +113,17 @@ export interface TemplateMeta {
   pageMargin: string;
   primaryColor: string;
 }
+
+// === AI 优化相关类型 ===
+
+export interface AiChatMessage {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
+export interface AiOptimizeRequest {
+  resume: ResumeData;
+  section: string;
+  itemIndex?: number;
+  instruction?: string;
+}
