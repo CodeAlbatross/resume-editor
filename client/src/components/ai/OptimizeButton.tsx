@@ -19,6 +19,7 @@ export default function OptimizeButton({ section, itemIndex }: Props) {
   const [original, setOriginal] = useState('');
   const [result, setResult] = useState('');
   const [streaming, setStreaming] = useState(false);
+  const [failed, setFailed] = useState(false); // 优化失败标志，失败时禁止应用
 
   const start = () => {
     if (!resume) return;
@@ -32,6 +33,7 @@ export default function OptimizeButton({ section, itemIndex }: Props) {
     setOriginal(orig);
     setResult('');
     setInstruction('');
+    setFailed(false); // 重置失败标志
     setOpen(true);
   };
 
@@ -40,15 +42,20 @@ export default function OptimizeButton({ section, itemIndex }: Props) {
     setStreaming(true);
     setOptimizing(true);
     setStreamingSection(`${section}-${itemIndex ?? 'all'}`);
+    setFailed(false); // 调用前重置失败标志
     api.aiOptimize(
       { resume, section, itemIndex, instruction },
-      (t) => setResult((prev) => prev + t),
+      (t) => {
+        // 检测错误文本（如 "\n\n[错误] xxx"），标记失败以禁用应用
+        if (t.includes('[错误]')) setFailed(true);
+        setResult((prev) => prev + t);
+      },
       () => { setStreaming(false); setOptimizing(false); setStreamingSection(null); }
     );
   };
 
   const apply = () => {
-    if (!resume || !result.trim()) return;
+    if (!resume || !result.trim() || failed) return;
     if (section === 'summary') {
       updateSection('summary', { content: result.trim() });
     } else if (itemIndex !== undefined && (section === 'experience' || section === 'projects')) {
@@ -99,8 +106,9 @@ export default function OptimizeButton({ section, itemIndex }: Props) {
               <button onClick={run} disabled={streaming || !resume} className="px-3 py-1.5 text-sm bg-amber-500 text-white rounded hover:bg-amber-600 disabled:opacity-50">
                 {streaming ? '优化中...' : '开始优化'}
               </button>
-              <button onClick={apply} disabled={streaming || !result.trim()} className="px-3 py-1.5 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50">应用</button>
+              <button onClick={apply} disabled={streaming || !result.trim() || failed} className="px-3 py-1.5 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50">应用</button>
             </div>
+            {failed && <p className="text-xs text-red-500 text-right">优化失败，无法应用</p>}
           </div>
         </div>
       )}
