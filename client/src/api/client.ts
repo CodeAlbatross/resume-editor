@@ -126,8 +126,12 @@ function sseFetch(
           try {
             const evt = JSON.parse(payload);
             if (evt.type === 'delta' && evt.text) onDelta(evt.text);
-            else if (evt.type === 'error') throw new Error(evt.message || 'AI 服务错误');
-            else if (evt.type === 'done') onDone?.();
+            else if (evt.type === 'error') {
+              // 流中段报错：直接作为流结束处理，确保 onDone 触发、streaming 不卡死
+              onDelta(`\n\n[错误] ${evt.message || 'AI 服务错误'}`);
+              onDone?.();
+              return;
+            } else if (evt.type === 'done') onDone?.();
           } catch {
             // 忽略解析失败的行
           }
