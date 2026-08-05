@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useResumeStore } from '../../stores/useResumeStore';
 import type { Project } from '../../types/resume';
+import OptimizeButton from '../ai/OptimizeButton';
 
 export default function ProjectEditor() {
   const projects = useResumeStore((s) => s.resume?.sections.projects ?? []);
@@ -113,6 +114,7 @@ function ProjectItem({ proj, index, total, updateItem, onRemove, onMove }: {
           <span className="text-xs font-medium text-gray-500">#{index + 1}</span>
           {index > 0 && <button onClick={() => onMove(-1)} className="text-[10px] text-gray-400 hover:text-gray-700 px-0.5" title="上移">▲</button>}
           {index < total - 1 && <button onClick={() => onMove(1)} className="text-[10px] text-gray-400 hover:text-gray-700 px-0.5" title="下移">▼</button>}
+          <OptimizeButton section="projects" itemIndex={index} />
         </div>
         <button onClick={onRemove} className="text-xs text-red-500">删除</button>
       </div>
