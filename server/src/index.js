@@ -7,6 +7,7 @@ import photosRouter from './routes/photos.js';
 import templatesRouter from './routes/templates.js';
 import pdfRouter from './routes/pdf.js';
 import versionsRouter from './routes/versions.js';
+import aiRouter from './routes/ai.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -39,6 +40,9 @@ app.use('/api/templates', templatesRouter);
 
 // PDF 生成 API
 app.use('/api/pdf', pdfRouter);
+
+// AI 优化 API
+app.use('/api/ai', aiRouter);
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
