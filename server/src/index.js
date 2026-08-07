@@ -12,6 +12,13 @@ import aiRouter from './routes/ai.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// 加载 .env 配置（AI API Key 等）；文件不存在则跳过
+try {
+  process.loadEnvFile(path.join(__dirname, '../.env'));
+} catch {
+  // 未配置 .env，AI 功能将不可用（isConfigured 返回 false）
+}
+
 const app = express();
 const PORT = 3001;
 

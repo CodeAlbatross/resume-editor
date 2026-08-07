@@ -30,6 +30,8 @@ function handleStream(req, res, buildMessages) {
   }
 
   setupSSE(res);
+  // 吞掉已销毁连接的写错误，避免 ERR_STREAM_DESTROYED 崩溃
+  res.on('error', () => {});
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
   // 客户端断开或响应完成时中止底层请求并释放超时定时器
@@ -49,7 +51,9 @@ function handleStream(req, res, buildMessages) {
       res.end();
     })
     .catch((e) => {
-      sendEvent(res, { type: 'error', message: e.message || 'AI 服务错误' });
+      if (res.writableEnded || res.destroyed) return;
+      const message = e.name === 'AbortError' ? '请求超时，请重试' : (e.message || 'AI 服务错误');
+      sendEvent(res, { type: 'error', message });
       res.end();
     });
 }
