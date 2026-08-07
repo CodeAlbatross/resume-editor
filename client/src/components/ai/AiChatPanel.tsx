@@ -18,10 +18,21 @@ export default function AiChatPanel({ onSendStarted }: Props) {
   const [streaming, setStreaming] = useState(false);
   const [assistantText, setAssistantText] = useState('');
   const scrollRef = useRef<HTMLDivElement>(null);
+  // ref 累积最新流式文本，供 done 回调读取。onDelta 与 onDone 可能在同一同步循环内背靠背触发
+  // （server 端 delta 与 done 的两次 write 紧挨、被合并进同一 chunk；错误路径更是直接背靠背），
+  // 此时 state/渲染尚未更新，必须用 ref 才能保证 done 读到完整内容（含最后一段 / 错误后缀）。
+  const assistantTextRef = useRef('');
+  // 记录本次会话是否出错。同样用 ref：错误路径 onDelta 与 onDone 同步背靠背，state 读不到最新值
+  const failedRef = useRef(false);
+  // 保存当前流的 stop 句柄，组件卸载时中止请求，避免 done 继续提交历史、重开后并发
+  const stopRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
   }, [messages, assistantText]);
+
+  // 组件卸载时中止未完成的 AI 流
+  useEffect(() => () => stopRef.current?.(), []);
 
   const send = async (text: string) => {
     if (!resume || !text.trim() || streaming) return;
@@ -30,21 +41,30 @@ export default function AiChatPanel({ onSendStarted }: Props) {
     setInput('');
     setStreaming(true);
     setAssistantText('');
+    assistantTextRef.current = '';
+    failedRef.current = false;
     onSendStarted?.();
-    api.aiChat(
+    const handle = api.aiChat(
       { resume, messages: [...messages, userMsg] },
-      (t) => setAssistantText((prev) => prev + t),
+      (t) => {
+        // 直接在 ref 上累积，保证 done 读到的永远是最新（含同步触发的最后一段 / 错误后缀）
+        assistantTextRef.current += t;
+        if (t.includes('[错误]')) failedRef.current = true;
+        setAssistantText(assistantTextRef.current);
+      },
       () => {
         const finalText = assistantTextRef.current;
-        if (finalText.trim()) addMessage({ role: 'assistant', content: finalText.trim() });
-        setStreaming(false);
+        if (finalText.trim()) {
+          // 失败路径（failedRef.current 为 true）：onDelta 已把 '[错误] xxx' 完整写进 ref，随本条消息
+          // 一起进入历史且内容自带 [错误] 标记，用户可见，无需额外 UI 提示；成功路径同样正常提交。
+          addMessage({ role: 'assistant', content: finalText.trim() });
+        }
+        setStreaming(false); // 失败同样恢复发送按钮可用
+        stopRef.current = null; // 流结束清除 stop 句柄，避免误中止后续请求
       }
     );
+    stopRef.current = () => handle.stop();
   };
-
-  // 用 ref 保存 assistantText 供 done 回调读取最新值
-  const assistantTextRef = useRef('');
-  assistantTextRef.current = assistantText;
 
   const handleJd = () => {
     if (!jd.trim()) return;
