@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useResumeStore } from '../../stores/useResumeStore';
 import type { Project } from '../../types/resume';
+import { getHighlightLevel, toTitle, toSub, toItem } from '../../utils/highlightLevel';
 import OptimizeButton from '../ai/OptimizeButton';
 
 export default function ProjectEditor() {
@@ -61,30 +62,6 @@ function ProjectItem({ proj, index, total, updateItem, onRemove, onMove }: {
   onRemove: () => void;
   onMove: (dir: number) => void;
 }) {
-  const [highlightsText, setHighlightsText] = useState(() => proj.highlights.join('\n'));
-  const prevHighlightsRef = useRef(proj.highlights);
-
-  useEffect(() => {
-    const prev = prevHighlightsRef.current;
-    if (prev !== proj.highlights) {
-      const prevStr = prev.join('\n');
-      const currStr = proj.highlights.join('\n');
-      if (prevStr !== highlightsText) setHighlightsText(currStr);
-      prevHighlightsRef.current = proj.highlights;
-    }
-  }, [proj.highlights]);
-
-  const handleHighlightsChange = (text: string) => {
-    setHighlightsText(text);
-    updateItem(index, 'highlights', text.split('\n'));
-  };
-
-  const handleHighlightsBlur = () => {
-    const trimmed = highlightsText.replace(/\n+$/, '');
-    setHighlightsText(trimmed);
-    updateItem(index, 'highlights', trimmed.split('\n').filter(Boolean));
-  };
-
   // Tech stack: local text state to avoid comma split on every keystroke
   const [techText, setTechText] = useState(() => proj.technologies.join(', '));
   const prevTechRef = useRef(proj.technologies);
@@ -133,9 +110,80 @@ function ProjectItem({ proj, index, total, updateItem, onRemove, onMove }: {
         <input className="w-full border rounded px-2 py-1 text-sm" placeholder="React, TypeScript, Node.js" value={techText} onChange={e => handleTechChange(e.target.value)} onBlur={handleTechBlur} />
       </div>
       <div>
-        <label className="text-xs text-gray-500">项目亮点（每行一条）</label>
-        <textarea className="w-full border rounded px-2 py-1 text-sm min-h-[72px]" placeholder="每行一条亮点" value={highlightsText} onChange={e => handleHighlightsChange(e.target.value)} onBlur={handleHighlightsBlur} />
+        <div className="flex items-center justify-between mb-1">
+          <label className="text-xs text-gray-500">项目亮点</label>
+        </div>
+        <HighlightsEditor
+          items={proj.highlights}
+          onChange={(next) => updateItem(index, 'highlights', next)}
+        />
       </div>
+    </div>
+  );
+}
+
+function HighlightsEditor({ items, onChange }: { items: string[]; onChange: (next: string[]) => void }) {
+  const update = (idx: number, value: string) => {
+    onChange(items.map((it, i) => (i === idx ? value : it)));
+  };
+  const move = (idx: number, dir: number) => {
+    const target = idx + dir;
+    if (target < 0 || target >= items.length) return;
+    const next = [...items];
+    [next[idx], next[target]] = [next[target], next[idx]];
+    onChange(next);
+  };
+  const remove = (idx: number) => onChange(items.filter((_, i) => i !== idx));
+  const add = () => onChange([...items, '']);
+  const setLevel = (idx: number, level: 'title' | 'sub' | 'item') => {
+    const cur = items[idx];
+    const next =
+      level === 'title' ? toTitle(cur) :
+      level === 'sub' ? toSub(cur) :
+      toItem(cur);
+    onChange(items.map((it, i) => (i === idx ? next : it)));
+  };
+
+  const levelLabel: Record<string, string> = {
+    title: '【标题】',
+    sub: '↳ 子项',
+    item: '• 亮点',
+  };
+  const placeholder: Record<string, string> = {
+    title: '如【板块一】xxx',
+    sub: '缩进子项...',
+    item: '亮点描述...',
+  };
+
+  return (
+    <div className="space-y-1">
+      {items.map((it, i) => {
+        const level = getHighlightLevel(it);
+        return (
+          <div key={i} className="flex items-center gap-1">
+            <select
+              className="w-[72px] text-[11px] border rounded px-1 py-1 text-gray-600 shrink-0"
+              value={level}
+              onChange={(e) => setLevel(i, e.target.value as 'title' | 'sub' | 'item')}
+              title="设置层级"
+            >
+              <option value="title">【标题】</option>
+              <option value="sub">↳ 子项</option>
+              <option value="item">• 亮点</option>
+            </select>
+            <input
+              className="flex-1 border rounded px-2 py-1 text-sm"
+              placeholder={placeholder[level]}
+              value={it}
+              onChange={(e) => update(i, e.target.value)}
+            />
+            {i > 0 && <button onClick={() => move(i, -1)} className="text-[10px] text-gray-400 hover:text-gray-600 shrink-0" title="上移">▲</button>}
+            {i < items.length - 1 && <button onClick={() => move(i, 1)} className="text-[10px] text-gray-400 hover:text-gray-600 shrink-0" title="下移">▼</button>}
+            <button onClick={() => remove(i)} className="text-xs text-red-400 hover:text-red-600 shrink-0">✕</button>
+          </div>
+        );
+      })}
+      <button onClick={add} className="text-[11px] px-2 py-0.5 bg-blue-50 text-blue-600 rounded hover:bg-blue-100">+ 添加亮点</button>
     </div>
   );
 }
