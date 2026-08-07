@@ -14,6 +14,7 @@ import LanguageEditor from '../components/editor/LanguageEditor';
 import CustomEditor from '../components/editor/CustomEditor';
 import PreviewPanel from '../components/preview/PreviewPanel';
 import VersionHistory from '../components/editor/VersionHistory';
+import AIAssistant from '../components/ai/AIAssistant';
 
 const DEFAULT_LABELS: Record<string, string> = {
   personal: '个人信息', summary: '个人摘要', experience: '工作经历',
@@ -35,6 +36,7 @@ export default function Editor() {
   const [editingName, setEditingName] = useState(false);
   const [nameDraft, setNameDraft] = useState('');
   const [showVersions, setShowVersions] = useState(false);
+  const [showAi, setShowAi] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -113,6 +115,7 @@ export default function Editor() {
             <input type="color" value={resume.themeColor || '#2563eb'} onChange={e => updateResumeMeta({ themeColor: e.target.value })} className="w-6 h-6 rounded cursor-pointer border" />
           </label>
           <button onClick={() => setShowVersions(true)} className="px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded border border-gray-300">版本历史</button>
+          <button onClick={() => setShowAi(true)} className="px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded border border-gray-300">🤖 AI 助手</button>
           <button onClick={handleSave} className="px-3 py-1.5 bg-blue-600 text-white text-sm rounded hover:bg-blue-700">保存</button>
         </div>
       </header>
@@ -173,6 +176,8 @@ export default function Editor() {
           }).catch(() => alert('重新加载简历失败'));
         }}
       />
+
+      <AIAssistant open={showAi} onClose={() => setShowAi(false)} />
     </div>
   );
 }
