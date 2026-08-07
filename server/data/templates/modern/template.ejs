@@ -44,6 +44,47 @@
         function skillName(item) { return typeof item === 'string' ? item : item.name; }
         function skillLevel(item) { return typeof item === 'string' ? '' : (item.level || ''); }
 
+        // 亮点分级（与前端 highlightLevel.ts 规则一致）
+        function hlLevel(h) {
+          if (/^【[^】]*】/.test(h)) return 'title';
+          if (/^[ \t]+/.test(h)) return 'sub';
+          return 'item';
+        }
+        function hlText(h) {
+          if (/^【[^】]*】/.test(h)) return h.replace(/^【/, '').replace(/】/, '：');
+          return h.replace(/^[ \t]+/, '');
+        }
+        // 描述 Markdown 内联（与前端 markdown.ts 一致，先转义 HTML 特殊字符）
+        function mdInline(s) {
+          return (s || '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+            .replace(/\*([^*]+)\*/g, '<em>$1</em>')
+            .replace(/`([^`]+)`/g, '<code>$1</code>');
+        }
+        // 描述：非空行全部以 "- " 开头 → <ul>，否则 <p>
+        function mdDesc(s) {
+          var lines = (s || '').split('\n');
+          var listItems = [];
+          var allList = true;
+          var hasContent = false;
+          lines.forEach(function(l) {
+            if (!l.trim()) return;
+            hasContent = true;
+            if (l.trim().startsWith('- ')) {
+              listItems.push('<li>' + mdInline(l.replace(/^\s*-\s+/, '').trim()) + '</li>');
+            } else {
+              allList = false;
+            }
+          });
+          if (hasContent && allList) {
+            return '<ul>' + listItems.join('') + '</ul>';
+          }
+          return '<p>' + mdInline(s) + '</p>';
+        }
+
         // Sidebar: skills, languages, certificates + short custom fields
         for (var si = 0; si < order.length; si++) {
           var key = order[si];
@@ -161,11 +202,17 @@
             <div><span class="item-name"><%= proj.name %></span> &middot; <%= proj.role %></div>
             <div class="item-date"><%= proj.technologies ? proj.technologies.join(', ') : '' %></div>
           </div>
-          <% if (proj.description) { %><div class="item-desc"><%= proj.description %></div><% } %>
+          <% if (proj.description) { %><div class="item-desc"><%- mdDesc(proj.description) %></div><% } %>
           <% if (proj.highlights && proj.highlights.length) { %>
-          <ul class="item-highlights">
-            <% proj.highlights.forEach(function(h) { %><li><%= h %></li><% }) %>
-          </ul>
+          <div class="item-highlights">
+            <% proj.highlights.forEach(function(h) {
+              var lv = hlLevel(h);
+              var txt = hlText(h);
+              if (lv === 'title') { %><div style="font-weight:600"><%= txt %></div><% }
+              else if (lv === 'sub') { %><div style="padding-left:14px;position:relative"><span style="position:absolute;left:2px">&#9702;</span><%= txt %></div><% }
+              else { %><div style="padding-left:12px;position:relative"><span style="position:absolute;left:0">&#8226;</span><%= txt %></div><% }
+            }) %>
+          </div>
           <% } %>
         </div>
         <% }) %>
