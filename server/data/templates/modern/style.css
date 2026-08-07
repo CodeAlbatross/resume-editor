@@ -27,6 +27,8 @@ body.hide .section-languages { display: none; }
 .item-name { font-weight: 600; }
 .item-date { font-size: 9pt; color: #94a3b8; }
 .item-desc { font-size: 9.5pt; color: #475569; margin-top: 2px; }
+.item-desc ul { margin: 2px 0 2px 16px; padding: 0; }
+.item-desc li { margin: 1px 0; }
 .item-highlights { padding-left: 16px; font-size: 9.5pt; margin-top: 2px; color: #475569; }
 
 .skills-tags { display: flex; flex-wrap: wrap; gap: 4px; }

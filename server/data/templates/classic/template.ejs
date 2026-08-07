@@ -66,25 +66,27 @@
         .replace(/\*([^*]+)\*/g, '<em>$1</em>')
         .replace(/`([^`]+)`/g, '<code>$1</code>');
     }
-    // 描述：非空行全部以 "- " 开头 → <ul>，否则 <p>
+    // 描述：按行拆分，连续的 "- " 行聚成 <ul>，其余聚成 <p>，多块交替渲染（与前端 mdToLines 一致）
     function mdDesc(s) {
       var lines = (s || '').split('\n');
-      var listItems = [];
-      var allList = true;
-      var hasContent = false;
+      var html = '';
+      var inList = false;
+      function closeList() {
+        if (inList) { html += '</ul>'; inList = false; }
+      }
       lines.forEach(function(l) {
-        if (!l.trim()) return;
-        hasContent = true;
-        if (l.trim().startsWith('- ')) {
-          listItems.push('<li>' + mdInline(l.replace(/^\s*-\s+/, '').trim()) + '</li>');
+        var t = l.trim();
+        if (!t) { closeList(); return; }
+        if (t.startsWith('- ')) {
+          if (!inList) { html += '<ul>'; inList = true; }
+          html += '<li>' + mdInline(t.replace(/^\-\s+/, '')) + '</li>';
         } else {
-          allList = false;
+          closeList();
+          html += '<p>' + mdInline(t) + '</p>';
         }
       });
-      if (hasContent && allList) {
-        return '<ul>' + listItems.join('') + '</ul>';
-      }
-      return '<p>' + mdInline(s) + '</p>';
+      closeList();
+      return html;
     }
 
     for (var si = 0; si < order.length; si++) {
