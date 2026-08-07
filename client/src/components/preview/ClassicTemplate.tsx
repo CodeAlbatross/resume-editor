@@ -1,7 +1,31 @@
 import { useResumeStore } from '../../stores/useResumeStore';
+import { getHighlightLevel, stripHighlightPrefix } from '../../utils/highlightLevel';
+import { mdToLines } from '../../utils/markdown';
 
 function skillName(sk: any) { return typeof sk === 'string' ? sk : sk.name; }
 function skillLevel(sk: any) { return typeof sk === 'string' ? '' : (sk.level || ''); }
+
+function renderDesc(text: string) {
+  const blocks = mdToLines(text);
+  return blocks.map((b, i) =>
+    b.type === 'list'
+      ? <ul key={i} className="list-disc pl-4 text-xs text-gray-600 mt-0.5">{b.items!.map((it, j) => <li key={j} dangerouslySetInnerHTML={{ __html: it }} />)}</ul>
+      : <p key={i} className="text-xs text-gray-600 mt-0.5" dangerouslySetInnerHTML={{ __html: b.content || '' }} />
+  );
+}
+
+function renderHighlights(list: string[]) {
+  return list.map((h, i) => {
+    const level = getHighlightLevel(h);
+    const { text } = stripHighlightPrefix(h);
+    if (level === 'title') {
+      return <div key={i} className="font-bold text-gray-800 mt-1.5">{text}</div>;
+    }
+    const marker = level === 'sub' ? '◦' : '•';
+    const indent = level === 'sub' ? 'ml-4' : '';
+    return <div key={i} className={`${indent} pl-3 relative text-gray-600`}><span className="absolute left-0">{marker}</span>{text}</div>;
+  });
+}
 
 export default function ClassicTemplate() {
   const resume = useResumeStore((s) => s.resume);
@@ -50,8 +74,9 @@ export default function ClassicTemplate() {
               <div key={i} className="mb-2">
                 <div className="flex justify-between items-baseline"><span className="font-semibold">{proj.name}</span><span className="text-xs text-gray-400">{proj.technologies.join(', ')}</span></div>
                 {proj.role && <p className="text-sm text-gray-500">{proj.role}</p>}
-                <p className="text-sm text-gray-600">{proj.description}</p>
-                {proj.highlights.length > 0 && <ul className="list-disc pl-4 text-sm text-gray-600 mt-1">{proj.highlights.map((h, j) => <li key={j}>{h}</li>)}</ul>}
+                {proj.description && renderDesc(proj.description)}
+                {(proj.highlights.length > 0 && !compressSettings.trim) && <div className="text-xs mt-0.5">{renderHighlights(proj.highlights)}</div>}
+                {(proj.highlights.length > 0 && compressSettings.trim) && <div className="text-xs mt-0.5">{renderHighlights(proj.highlights.slice(0, 3))}</div>}
               </div>
             ))}
           </div>
