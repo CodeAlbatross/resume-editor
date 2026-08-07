@@ -22,6 +22,17 @@ test('renderMarkdown 无语法纯文本不变', () => {
   assert.equal(renderMarkdown('普通文本内容'), '普通文本内容');
 });
 
+test('renderMarkdown 转义 HTML 特殊字符防注入', () => {
+  assert.equal(
+    renderMarkdown('<img src=x onerror=alert(1)>'),
+    '&lt;img src=x onerror=alert(1)&gt;',
+  );
+});
+
+test('renderMarkdown 转义后加粗仍正常', () => {
+  assert.equal(renderMarkdown('**加粗**'), '<strong>加粗</strong>');
+});
+
 test('mdToLines 分离列表与段落', () => {
   const lines = mdToLines('段落一\n- 列表项A\n- 列表项B');
   assert.deepEqual(lines, [

@@ -7,7 +7,11 @@ export interface MdBlock {
 // 内联标记替换：**加粗** → <strong>、*斜体* → <em>、`代码` → <code>
 // 注意：先处理 ** 再处理 *，避免 **x** 被 * 提前匹配
 function inlineHtml(text: string): string {
-  let s = text;
+  let s = String(text ?? '');
+  // 先转义 HTML 特殊字符（防注入），再做标记替换
+  s = s.replace(/&/g, '&amp;');
+  s = s.replace(/</g, '&lt;');
+  s = s.replace(/>/g, '&gt;');
   s = s.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
   s = s.replace(/\*([^*]+)\*/g, '<em>$1</em>');
   s = s.replace(/`([^`]+)`/g, '<code>$1</code>');
