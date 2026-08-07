@@ -37,3 +37,7 @@ test('toItem 去【】和缩进', () => {
   assert.equal(toItem('  业务线'), '业务线');
   assert.equal(toItem('普通'), '普通');
 });
+
+test('toItem 去【】包裹（含正文）', () => {
+  assert.equal(toItem('【板块一】xxx'), '板块一xxx');
+});

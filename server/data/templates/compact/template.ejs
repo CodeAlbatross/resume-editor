@@ -57,7 +57,7 @@
       }
       lines.forEach(function(l) {
         var t = l.trim();
-        if (!t) { closeList(); return; }
+        if (!t) { return; }  // 空行跳过，不关列表（与前端 mdToLines 一致）
         if (t.startsWith('- ')) {
           if (!inList) { html += '<ul>'; inList = true; }
           html += '<li>' + mdInline(t.replace(/^\-\s+/, '')) + '</li>';
@@ -144,7 +144,7 @@
           <% phl.forEach(function(h) {
             var lv = hlLevel(h);
             var txt = hlText(h);
-            if (lv === 'title') { %><div style="font-weight:600"><%= txt %></div><% }
+            if (lv === 'title') { %><div style="font-weight:700"><%= txt %></div><% }
             else if (lv === 'sub') { %><div style="padding-left:14px;position:relative"><span style="position:absolute;left:2px">&#9702;</span><%= txt %></div><% }
             else { %><div style="padding-left:12px;position:relative"><span style="position:absolute;left:0">&#8226;</span><%= txt %></div><% }
           }) %>

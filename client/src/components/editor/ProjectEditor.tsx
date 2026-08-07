@@ -134,7 +134,12 @@ function HighlightsEditor({ items, onChange }: { items: string[]; onChange: (nex
     onChange(next);
   };
   const remove = (idx: number) => onChange(items.filter((_, i) => i !== idx));
-  const add = () => onChange([...items, '']);
+  const add = () => {
+    // 尾部已有空项则不重复添加，避免空项残留
+    const last = items[items.length - 1];
+    if (last !== undefined && last.trim() === '') return;
+    onChange([...items, '']);
+  };
   const setLevel = (idx: number, level: 'title' | 'sub' | 'item') => {
     const cur = items[idx];
     const next =

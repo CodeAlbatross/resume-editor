@@ -35,6 +35,7 @@
       <%
         var tc = data.themeColor || '#0891b2';
         var hided = data.compressSettings && data.compressSettings.hide;
+        var trimmed = data.compressSettings && data.compressSettings.trim;
         var customFields = data.sections.customFields || [];
         var defaultOrder = ['summary','experience','projects','education','skills','certificates','languages'];
         var order = data.sectionOrder || defaultOrder;
@@ -74,7 +75,7 @@
           }
           lines.forEach(function(l) {
             var t = l.trim();
-            if (!t) { closeList(); return; }
+            if (!t) { return; }  // 空行跳过，不关列表（与前端 mdToLines 一致）
             if (t.startsWith('- ')) {
               if (!inList) { html += '<ul>'; inList = true; }
               html += '<li>' + mdInline(t.replace(/^\-\s+/, '')) + '</li>';
@@ -207,10 +208,11 @@
           <% if (proj.description) { %><div class="item-desc"><%- mdDesc(proj.description) %></div><% } %>
           <% if (proj.highlights && proj.highlights.length) { %>
           <div class="item-highlights">
-            <% proj.highlights.forEach(function(h) {
+            <% var phl = trimmed ? proj.highlights.slice(0,3) : proj.highlights; %>
+            <% phl.forEach(function(h) {
               var lv = hlLevel(h);
               var txt = hlText(h);
-              if (lv === 'title') { %><div style="font-weight:600"><%= txt %></div><% }
+              if (lv === 'title') { %><div style="font-weight:700"><%= txt %></div><% }
               else if (lv === 'sub') { %><div style="padding-left:14px;position:relative"><span style="position:absolute;left:2px">&#9702;</span><%= txt %></div><% }
               else { %><div style="padding-left:12px;position:relative"><span style="position:absolute;left:0">&#8226;</span><%= txt %></div><% }
             }) %>

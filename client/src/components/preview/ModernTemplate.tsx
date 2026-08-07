@@ -9,8 +9,8 @@ function renderDesc(text: string) {
   const blocks = mdToLines(text);
   return blocks.map((b, i) =>
     b.type === 'list'
-      ? <ul key={i} className="list-disc pl-4 text-xs text-gray-600 mt-0.5">{b.items!.map((it, j) => <li key={j} dangerouslySetInnerHTML={{ __html: it }} />)}</ul>
-      : <p key={i} className="text-xs text-gray-600 mt-0.5" dangerouslySetInnerHTML={{ __html: b.content || '' }} />
+      ? <ul key={i} className="list-disc pl-4 text-sm text-gray-600 mt-0.5">{b.items!.map((it, j) => <li key={j} dangerouslySetInnerHTML={{ __html: it }} />)}</ul>
+      : <p key={i} className="text-sm text-gray-600 mt-0.5" dangerouslySetInnerHTML={{ __html: b.content || '' }} />
   );
 }
 
@@ -68,8 +68,8 @@ export default function ModernTemplate() {
                 <div className="flex justify-between items-baseline"><span className="font-semibold">{proj.name}</span><span className="text-xs text-gray-400">{proj.technologies.join(', ')}</span></div>
                 {proj.role && <p className="text-sm text-gray-500 italic">{proj.role}</p>}
                 {proj.description && renderDesc(proj.description)}
-                {(proj.highlights.length > 0 && !compressSettings.trim) && <div className="text-xs mt-0.5">{renderHighlights(proj.highlights)}</div>}
-                {(proj.highlights.length > 0 && compressSettings.trim) && <div className="text-xs mt-0.5">{renderHighlights(proj.highlights.slice(0, 3))}</div>}
+                {(proj.highlights.length > 0 && !compressSettings.trim) && <div className="text-sm mt-0.5">{renderHighlights(proj.highlights)}</div>}
+                {(proj.highlights.length > 0 && compressSettings.trim) && <div className="text-sm mt-0.5">{renderHighlights(proj.highlights.slice(0, 3))}</div>}
               </div>
             ))}
           </div>

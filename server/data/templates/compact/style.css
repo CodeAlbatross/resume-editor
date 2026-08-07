@@ -29,9 +29,10 @@ body.hide .section-languages { display: none; }
 .item-sub { color: #7c3aed; }
 .item-date { font-size: 8pt; color: #94a3b8; white-space: nowrap; }
 .item-desc { font-size: 9pt; color: #475569; margin-top: 1px; }
+.item-desc p { margin: 2px 0; }
 .item-desc ul { margin: 2px 0 2px 16px; padding: 0; }
 .item-desc li { margin: 1px 0; }
-.item-highlights { margin-top: 2px; padding-left: 16px; font-size: 9pt; color: #475569; }
+.item-highlights { margin-top: 2px; padding-left: 0; font-size: 9pt; color: #475569; }
 .item-highlights li { margin-bottom: 0px; }
 
 .skills { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; }

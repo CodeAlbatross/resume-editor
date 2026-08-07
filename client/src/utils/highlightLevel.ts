@@ -40,5 +40,6 @@ export function toSub(text: string): string {
 
 export function toItem(text: string): string {
   const t = (text ?? '').trim();
-  return t.replace(/^【/, '').replace(/】$/, '');
+  // 去掉【】包裹：剥首【、剥第一个】（可能含正文）
+  return t.replace(/^【/, '').replace(/】/, '');
 }
